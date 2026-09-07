@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Verified!</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px;">
+    <div style="max-w-md; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 style="color: #333;">Account Verified!</h2>
+        <p style="color: #666; font-size: 16px;">Hi <span th:text="${name}">User</span>,</p>
+        <p style="color: #666; font-size: 16px;">Great news! Your email address has been successfully verified, and your Nutrition AI account is now fully active.</p>
+        <p style="color: #666; font-size: 16px;">You can now log in to your account, complete your profile, and start exploring opportunities.</p>
+        
+        <div style="margin: 30px 0; text-align: center;">
+            <a th:href="${loginUrl}" style="background-color: #1890ff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Login to Your Account</a>
+        </div>
+        
+        <p style="color: #666; font-size: 16px;">We are thrilled to have you on board.</p>
+        
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 12px; color: #999; text-align: center;">
+            <p>&copy; 2026 Nutrition AI. All rights reserved.</p>
+            <p>This is an automated message, please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>
