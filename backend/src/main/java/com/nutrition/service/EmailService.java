@@ -1,16 +1,16 @@
 package com.nutrition.service;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EmailService {
@@ -18,47 +18,54 @@ public class EmailService {
     @Value("${app.frontend.login-url}")
     private String loginUrl;
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${google.script.url}")
+    private String scriptUrl;
+
+    @Value("${google.script.api-key}")
+    private String scriptApiKey;
 
     @Autowired
-    private TemplateEngine templateEngine;
+    private RestTemplate restTemplate;
 
     @Async
-    public void sendOtpVerificationEmail(String toEmail, String userName, String otp) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("name", userName);
-        context.setVariable("otp", otp);
-        context.setVariable("loginUrl", loginUrl);
+    public void sendOtpVerificationEmail(String toEmail, String userName, String otp) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // "otp-verification" refers to otp-verification.html in src/main/resources/templates/
-        String process = templateEngine.process("otp-verification", context);
-        
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Map<String, String> body = new HashMap<>();
+            body.put("apiKey", scriptApiKey);
+            body.put("email", toEmail);
+            body.put("userName", userName);
+            body.put("otp", otp);
+            body.put("type", "verification");
+            body.put("loginUrl", loginUrl);
 
-        helper.setTo(toEmail);
-        helper.setSubject("Your OTP Verification Code");
-        helper.setText(process, true); // true indicates HTML content
-
-        mailSender.send(message);
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(scriptUrl, request, String.class);
+        } catch (Exception e) {
+            // Log the error but do not throw to prevent disrupting the registration flow
+            System.err.println("Failed to send OTP webhook: " + e.getMessage());
+        }
     }
 
     @Async
-    public void sendAccountVerifiedEmail(String toEmail, String userName) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("name", userName);
-        context.setVariable("loginUrl", loginUrl);
+    public void sendAccountVerifiedEmail(String toEmail, String userName) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String process = templateEngine.process("account-verified", context);
-        
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Map<String, String> body = new HashMap<>();
+            body.put("apiKey", scriptApiKey);
+            body.put("email", toEmail);
+            body.put("userName", userName);
+            body.put("type", "verified");
+            body.put("loginUrl", loginUrl);
 
-        helper.setTo(toEmail);
-        helper.setSubject("Account Verified - Welcome to Nutrition AI!");
-        helper.setText(process, true);
-
-        mailSender.send(message);
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(scriptUrl, request, String.class);
+        } catch (Exception e) {
+            System.err.println("Failed to send Account Verified webhook: " + e.getMessage());
+        }
     }
 }

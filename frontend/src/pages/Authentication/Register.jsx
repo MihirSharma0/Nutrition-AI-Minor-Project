@@ -16,6 +16,7 @@ const Register = () => {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -25,14 +26,24 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isLoading) return;
+        
+        setIsLoading(true);
         setError('');
         setSuccess('');
-        const result = await register(formData);
-        if (result.success) {
-            setSuccess('Registration successful! Please verify your account.');
-            setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`), 2000);
-        } else {
-            setError(result.message);
+        
+        try {
+            const result = await register(formData);
+            if (result.success) {
+                setSuccess('Registration successful! Please verify your account.');
+                setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`), 2000);
+            } else {
+                setError(result.message);
+                setIsLoading(false);
+            }
+        } catch (err) {
+            setError('An unexpected error occurred. Please try again.');
+            setIsLoading(false);
         }
     };
 
@@ -181,8 +192,22 @@ const Register = () => {
                                 </select>
                             </div>
 
-                            <button type="submit" className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-bold py-3.5 rounded-xl hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all mt-4 text-[15px]">
-                                Sign Up
+                            <button 
+                                type="submit" 
+                                disabled={isLoading}
+                                className={`w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-bold py-3.5 rounded-xl transition-all mt-4 text-[15px] ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-[0_0_20px_rgba(74,222,128,0.4)]'}`}
+                            >
+                                {isLoading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Processing...
+                                    </span>
+                                ) : (
+                                    'Sign Up'
+                                )}
                             </button>
                         </form>
 

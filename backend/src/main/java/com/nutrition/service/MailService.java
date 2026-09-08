@@ -1,27 +1,61 @@
 package com.nutrition.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class MailService {
     
+    @Value("${app.frontend.login-url}")
+    private String loginUrl;
+
+    @Value("${google.script.url}")
+    private String scriptUrl;
+
+    @Value("${google.script.api-key}")
+    private String scriptApiKey;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     private final String frontendUrl = "http://localhost:5173";
 
+    @Async
     public void sendVerificationEmail(String to, String token) {
         String link = frontendUrl + "/verify?token=" + token;
-        System.out.println("=================================================");
-        System.out.println("EMAIL SIMULATION - Verification");
-        System.out.println("To: " + to);
-        System.out.println("Link: " + link);
-        System.out.println("=================================================");
+        sendWebhook(to, "verification_link", link);
     }
     
+    @Async
     public void sendPasswordResetEmail(String to, String token) {
         String link = frontendUrl + "/reset-password?token=" + token;
-        System.out.println("=================================================");
-        System.out.println("EMAIL SIMULATION - Password Reset");
-        System.out.println("To: " + to);
-        System.out.println("Link: " + link);
-        System.out.println("=================================================");
+        sendWebhook(to, "password_reset", link);
+    }
+
+    private void sendWebhook(String toEmail, String type, String link) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> body = new HashMap<>();
+            body.put("apiKey", scriptApiKey);
+            body.put("email", toEmail);
+            body.put("type", type);
+            body.put("link", link);
+
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(scriptUrl, request, String.class);
+        } catch (Exception e) {
+            System.err.println("Failed to send Mail Webhook (" + type + "): " + e.getMessage());
+        }
     }
 }

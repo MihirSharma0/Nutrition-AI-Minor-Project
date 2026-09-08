@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.Random;
 import java.util.Collections;
 import java.util.Map;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -107,15 +108,17 @@ public class AuthService {
     }
 
     public void registerUser(RegisterRequest signUpRequest) {
-        User existingUser = userRepository.findByEmail(signUpRequest.getEmail()).orElse(null);
-        if (existingUser != null) {
-            if (existingUser.isVerified()) {
-                throw new RuntimeException("Error: Email is already in use!");
-            } else {
-                // User exists but is not verified. Delete the old unverified record so they can register again.
-                // Cascading will handle related tokens or profiles.
-                userRepository.delete(existingUser);
-                userRepository.flush(); // ensure deletion before inserting new record with same email
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            User existingUser = userRepository.findByEmail(signUpRequest.getEmail()).orElse(null);
+            if (existingUser != null) {
+                if (existingUser.isVerified()) {
+                    throw new RuntimeException("Error: Email is already in use!");
+                } else {
+                    // User exists but is not verified. Delete the old unverified record so they can register again.
+                    // Cascading will handle related tokens or profiles.
+                    userRepository.delete(existingUser);
+                    userRepository.flush(); // ensure deletion before inserting new record with same email
+                }
             }
         }
 
@@ -136,7 +139,11 @@ public class AuthService {
         user.setRole(userRole);
         user.setVerified(false); 
 
-        user = userRepository.save(user);
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Error: Email is already in use!");
+        }
 
         if (userRole == Role.NUTRITIONIST) {
             NutritionistProfile profile = new NutritionistProfile();
@@ -197,7 +204,8 @@ public class AuthService {
         userRepository.save(user);
 
         try {
-            emailService.sendAccountVerifiedEmail(user.getEmail(), user.getFirstName());
+            String fullName = user.getFirstName() + (user.getLastName() != null && !user.getLastName().isBlank() ? " " + user.getLastName() : "");
+            emailService.sendAccountVerifiedEmail(user.getEmail(), fullName);
         } catch(Exception e) {
             System.err.println("Failed to send account verified email: " + e.getMessage());
         }
