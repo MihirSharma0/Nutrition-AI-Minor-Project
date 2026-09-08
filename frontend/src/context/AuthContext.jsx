@@ -37,6 +37,25 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const googleLogin = async (credential) => {
+        try {
+            const response = await api.post('/auth/google', { credential });
+            const { token, ...userData } = response.data;
+            
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            setToken(token);
+            setUser(userData);
+            return { success: true, role: userData.role };
+        } catch (error) {
+            return { 
+                success: false, 
+                message: error.response?.data?.message || 'Google Login failed' 
+            };
+        }
+    };
+
     const register = async (userData) => {
         try {
             await api.post('/auth/register', userData);
@@ -81,7 +100,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, verifyOtp, resendOtp, logout }}>
+        <AuthContext.Provider value={{ user, token, loading, login, googleLogin, register, verifyOtp, resendOtp, logout }}>
             {children}
         </AuthContext.Provider>
     );

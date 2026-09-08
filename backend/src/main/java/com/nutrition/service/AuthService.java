@@ -23,6 +23,16 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.Random;
+import java.util.Collections;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import com.nutrition.security.CustomUserDetails;
 
 @Service
 @RequiredArgsConstructor
@@ -39,12 +49,61 @@ public class AuthService {
     private final EmailService emailService;
     private final SystemSettingService systemSettingService;
 
+    @Value("${google.client.id}")
+    private String googleClientId;
+
     public String authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtUtils.generateJwtToken(authentication);
+    }
+
+    public String authenticateWithGoogle(String accessToken) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity<>("", headers);
+            
+            ResponseEntity<Map> response = restTemplate.exchange(
+                "https://www.googleapis.com/oauth2/v3/userinfo", 
+                HttpMethod.GET, 
+                entity, 
+                Map.class
+            );
+
+            Map<String, Object> payload = response.getBody();
+            if (payload != null && payload.containsKey("email")) {
+                String email = (String) payload.get("email");
+                String firstName = (String) payload.get("given_name");
+                String lastName = (String) payload.get("family_name");
+
+                User user = userRepository.findByEmail(email).orElse(null);
+                
+                if (user == null) {
+                    user = new User();
+                    user.setEmail(email);
+                    user.setFirstName(firstName != null ? firstName : "User");
+                    user.setLastName(lastName != null ? lastName : "");
+                    user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
+                    user.setRole(Role.USER);
+                    user.setVerified(true);
+                    user = userRepository.save(user);
+                }
+
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                
+                return jwtUtils.generateJwtToken(authentication);
+            } else {
+                throw new RuntimeException("Failed to retrieve email from Google.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Google authentication failed: " + (e.getMessage() != null ? e.getMessage() : "Unknown error"));
+        }
     }
 
     public void registerUser(RegisterRequest signUpRequest) {

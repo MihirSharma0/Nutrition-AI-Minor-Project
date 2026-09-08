@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import GlobalLayout from './layouts/GlobalLayout';
 import Home from './pages/Home';
@@ -52,12 +53,15 @@ import AdminAnalytics from './pages/Dashboard/Admin/AdminAnalytics';
 const queryClient = new QueryClient();
 
 function App() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
   return (
     <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Router>
-          <Routes>
+      <GoogleOAuthProvider clientId={googleClientId}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Router>
+            <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verify" element={<VerifyEmail />} />
@@ -113,6 +117,7 @@ function App() {
         </Router>
       </AuthProvider>
     </QueryClientProvider>
+    </GoogleOAuthProvider>
     </HelmetProvider>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { ArrowLeft, Sparkles, Target, TrendingUp, Users, Eye, EyeOff, Shield, Activity, Users as UsersIcon } from 'lucide-react';
+import { useGoogleLogin } from '@react-oauth/google';
 import Starfield from '../../components/Starfield';
 
 const Login = () => {
@@ -10,8 +11,27 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [activeTab, setActiveTab] = useState('USER');
     const [error, setError] = useState('');
-    const { login } = useContext(AuthContext);
+    const { login, googleLogin } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    const handleGoogleLoginSuccess = async (tokenResponse) => {
+        try {
+            const result = await googleLogin(tokenResponse.access_token);
+            if (result.success) {
+                const role = result.role?.toLowerCase() || 'user';
+                navigate(`/dashboard/${role}`);
+            } else {
+                setError(result.message);
+            }
+        } catch (err) {
+            setError('Google login failed. Please try again.');
+        }
+    };
+
+    const loginWithGoogle = useGoogleLogin({
+        onSuccess: handleGoogleLoginSuccess,
+        onError: () => setError('Google login failed. Please try again.'),
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -188,6 +208,7 @@ const Login = () => {
 
                         <button 
                             type="button"
+                            onClick={() => loginWithGoogle()}
                             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-white font-semibold text-[15px]"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">

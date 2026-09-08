@@ -10,6 +10,7 @@ import com.nutrition.entity.User;
 import com.nutrition.repository.UserRepository;
 import com.nutrition.security.CustomUserDetails;
 import com.nutrition.service.AuthService;
+import com.nutrition.dto.GoogleLoginRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,27 @@ public class AuthController {
                 user.getFirstName(),
                 user.getLastName(),
                 userDetails.getAuthorities().iterator().next().getAuthority()));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> authenticateWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
+        try {
+            String jwt = authService.authenticateWithGoogle(request.getCredential());
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+            User user = userRepository.findById(userDetails.getId()).orElseThrow();
+
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    userDetails.getAuthorities().iterator().next().getAuthority()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
     }
 
     @PostMapping("/register")
