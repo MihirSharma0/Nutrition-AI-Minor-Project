@@ -10,7 +10,7 @@ const FeatureComparisonTable = () => {
         { name: "Advanced Sleep Analytics", starter: false, pro: true, enterprise: true },
         { name: "Continuous Glucose Monitor Sync", starter: false, pro: false, enterprise: true },
         { name: "DNA Metabolic Baseline", starter: false, pro: false, enterprise: true },
-        { name: "1-on-1 Dietitian Access", starter: false, pro: false, enterprise: true },
+        { name: "1-on-1 Nutritionist Access", starter: false, pro: false, enterprise: true },
     ];
 
     return (

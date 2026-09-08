@@ -6,7 +6,7 @@ const WhyClientsTrustUs = () => {
             <div className="bg-white/5 border border-white/10 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUQW1ayK2QptnJC4qRpFZJQfK25SrdzXBlBBKDdfgFsY3fbK5Q9MBP4F2v2a6cli_nEXhYxZdynfefZ9y6wd9ardu7fb6hI4n4NzwrwE4B--Y4wqSMdeuOKZZfTXGlE55PD6O95ZslKGxZFe9jEyC5O4jQKnL_jnYppX1ixe10PJAE_5uvWDiX9c_vA5cz5JtDILmRAtwTwIPmdRfsDOx7e2W8rsEiFw4gzv8YSmBzQ-2grz1UCn8l')] bg-cover bg-center opacity-5 mix-blend-screen pointer-events-none"></div>
                 
-                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6 relative z-10">Why Clients Trust Us</h2>
+                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6 relative z-10">Why Users Trust Us</h2>
                 <p className="text-white/60 text-lg max-w-3xl mx-auto leading-relaxed mb-16 relative z-10">
                     Trust isn't given; it's earned through consistent, measurable results and unwavering ethical standards in data privacy and clinical care.
                 </p>
@@ -20,7 +20,7 @@ const WhyClientsTrustUs = () => {
                     <div className="bg-[#080b12]/50 border border-white/10 rounded-2xl p-8 backdrop-blur-md hover:-translate-y-2 transition-transform">
                         <span className="material-symbols-outlined text-[#38bdf8] text-4xl mb-6">verified_user</span>
                         <h4 className="text-xl font-bold text-white mb-3">Licensed Clinicians</h4>
-                        <p className="text-white/50 text-sm leading-relaxed">Every protocol is overseen and approved by Registered Dietitians and medical professionals.</p>
+                        <p className="text-white/50 text-sm leading-relaxed">Every protocol is overseen and approved by Registered Nutritionists and medical professionals.</p>
                     </div>
                     <div className="bg-[#080b12]/50 border border-white/10 rounded-2xl p-8 backdrop-blur-md hover:-translate-y-2 transition-transform">
                         <span className="material-symbols-outlined text-[#a5d391] text-4xl mb-6">assignment_turned_in</span>

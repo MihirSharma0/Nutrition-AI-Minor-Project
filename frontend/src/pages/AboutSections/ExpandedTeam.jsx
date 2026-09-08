@@ -10,7 +10,7 @@ const ExpandedTeam = () => {
         },
         {
             name: "Anita Desai",
-            role: "Clinical Dietitian (Endocrinology)",
+            role: "Clinical Nutritionist (Endocrinology)",
             bio: "Specializes in PCOS, thyroid disorders, and metabolic syndrome reversal.",
             image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDZLrZKLb7jzMmFQ5c6qGbPfOriSTc2BC_huR3PJJqupenaW5lWxSI7_t5rEsctSs00W6MwL6qe-qHTKrEjUZAEjRruf0uHFev2ubNwTi4kWIBFgSVq9eO-2GXDO-gHwKpeCq41OZyuAkBa0fNoruRCpaRGqXAPY7wcb-m01KQ-q4hj5mEWx3oKu0Jdv0Iv-jfmt0C8yuj48YFkyamuApv5yVIztLtfvuR9f3xAvA3JU1uCRp1uckTy"
         }

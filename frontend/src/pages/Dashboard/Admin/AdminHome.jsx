@@ -184,7 +184,7 @@ const AdminHome = () => {
                             <p className="text-4xl font-bold text-[#a5d391] font-hero-display mt-3">{stats.totalUsers}</p>
                         </div>
                         <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-sky-400/40 transition-all duration-300 shadow-xl">
-                            <h3 className="text-sm text-white/60 font-medium">Active Dietitians</h3>
+                            <h3 className="text-sm text-white/60 font-medium">Active Nutritionists</h3>
                             <p className="text-4xl font-bold text-sky-400 font-hero-display mt-3">{stats.totalNutritionists || stats.totalDietitians || 0}</p>
                         </div>
                         <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-amber-400/40 transition-all duration-300 shadow-xl">

@@ -15,7 +15,7 @@ const ClientManagement = () => {
         switch (status) {
             case 'Critical': return 'text-red-400 bg-red-400/10 border-red-400/20';
             case 'Warning': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-            case 'Optimal': return 'text-green-400 bg-green-400/10 border-green-400/20';
+            case 'Optimal': return 'text-[#a5d391] bg-[#a5d391]/10 border-[#a5d391]/20';
             default: return 'text-white/70 bg-white/5 border-white/10';
         }
     };
@@ -23,7 +23,7 @@ const ClientManagement = () => {
     return (
         <div className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h1 className="text-3xl font-bold font-hero-display">Client Roster</h1>
+                <h1 className="text-3xl font-bold font-hero-display tracking-tight text-white">User Roster</h1>
                 
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="relative w-full md:w-64">
@@ -31,23 +31,23 @@ const ClientManagement = () => {
                         <input 
                             type="text" 
                             placeholder="Search by name or ID..." 
-                            className="w-full bg-[#0a0d16] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-colors"
+                            className="w-full bg-[#080b12]/80 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#a5d391]/50 transition-colors"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="bg-indigo-500 text-white w-10 h-10 rounded-xl flex items-center justify-center hover:bg-indigo-400 transition-colors shrink-0">
+                    <button className="bg-[#a5d391] text-black font-bold w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white transition-colors shrink-0 shadow-[0_0_15px_rgba(165,211,145,0.3)] cursor-pointer">
                         <span className="material-symbols-outlined text-[20px]">filter_list</span>
                     </button>
                 </div>
             </div>
             
-            <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr className="border-b border-white/10 bg-white/[0.02]">
-                                <th className="p-5 font-bold text-white/40 uppercase tracking-widest text-[10px]">Client</th>
+                                <th className="p-5 font-bold text-white/40 uppercase tracking-widest text-[10px]">User</th>
                                 <th className="p-5 font-bold text-white/40 uppercase tracking-widest text-[10px]">Protocol / Goal</th>
                                 <th className="p-5 font-bold text-white/40 uppercase tracking-widest text-[10px]">Adherence</th>
                                 <th className="p-5 font-bold text-white/40 uppercase tracking-widest text-[10px]">AI Status</th>
@@ -60,7 +60,7 @@ const ClientManagement = () => {
                                 <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
                                     <td className="p-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-500/30">
+                                            <div className="w-8 h-8 rounded-full bg-[#a5d391]/20 text-[#a5d391] flex items-center justify-center font-bold text-xs border border-[#a5d391]/30">
                                                 {client.name.charAt(0)}
                                             </div>
                                             <div>
@@ -76,7 +76,7 @@ const ClientManagement = () => {
                                         <div className="flex items-center gap-2">
                                             <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
                                                 <div 
-                                                    className={`h-full ${client.adherence >= 85 ? 'bg-green-400' : client.adherence >= 70 ? 'bg-yellow-400' : 'bg-red-400'}`} 
+                                                    className={`h-full ${client.adherence >= 85 ? 'bg-[#a5d391]' : client.adherence >= 70 ? 'bg-yellow-400' : 'bg-red-400'}`} 
                                                     style={{ width: `${client.adherence}%` }}
                                                 ></div>
                                             </div>
@@ -92,7 +92,7 @@ const ClientManagement = () => {
                                         {client.lastSync}
                                     </td>
                                     <td className="p-5 text-right">
-                                        <button className="text-indigo-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest border border-indigo-400/30 hover:bg-indigo-500 px-3 py-1.5 rounded-lg">
+                                        <button className="text-[#a5d391] hover:text-white transition-colors text-xs font-bold uppercase tracking-widest border border-[#a5d391]/30 hover:bg-[#a5d391] hover:text-black px-3.5 py-1.5 rounded-full cursor-pointer">
                                             View Data
                                         </button>
                                     </td>
@@ -106,7 +106,7 @@ const ClientManagement = () => {
                     <span>Showing 1-5 of 42</span>
                     <div className="flex gap-2">
                         <button className="hover:text-white transition-colors">Prev</button>
-                        <button className="text-indigo-400 hover:text-white transition-colors">Next</button>
+                        <button className="text-[#a5d391] hover:text-white transition-colors">Next</button>
                     </div>
                 </div>
             </div>

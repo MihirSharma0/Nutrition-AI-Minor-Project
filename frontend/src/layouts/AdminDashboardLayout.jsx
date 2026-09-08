@@ -20,7 +20,7 @@ const AdminDashboardLayout = () => {
         { name: "System Core", path: "/dashboard/admin", icon: "dashboard" },
         { name: "User Management", path: "/dashboard/admin/users", icon: "manage_accounts" },
         { name: "SQL Console", path: "/dashboard/admin/sql", icon: "terminal" },
-        { name: "Dietitian Nodes", path: "/dashboard/admin/dietitians", icon: "badge" },
+        { name: "Nutritionist Nodes", path: "/dashboard/admin/dietitians", icon: "badge" },
         { name: "Blog CMS", path: "/dashboard/admin/blogs", icon: "article" },
         { name: "Global Recipes", path: "/dashboard/admin/recipes", icon: "restaurant_menu" },
         { name: "Transactions", path: "/dashboard/admin/payments", icon: "payments" },

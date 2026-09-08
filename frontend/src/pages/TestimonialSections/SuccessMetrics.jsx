@@ -3,7 +3,7 @@ import React from 'react';
 const SuccessMetrics = () => {
     const metrics = [
         { label: "Average Fat Loss (12 Wks)", value: "14.2 lbs", icon: "monitor_weight", color: "text-primary" },
-        { label: "Client Retention Rate", value: "92%", icon: "group", color: "text-[#38bdf8]" },
+        { label: "User Retention Rate", value: "92%", icon: "group", color: "text-[#38bdf8]" },
         { label: "Reported Energy Increase", value: "+45%", icon: "bolt", color: "text-[#a3e635]" }
     ];
 

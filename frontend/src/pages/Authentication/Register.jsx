@@ -101,7 +101,7 @@ const Register = () => {
                             </div>
                             <div>
                                 <h3 className="font-semibold text-white text-lg mb-1">Expert Guidance</h3>
-                                <p className="text-sm text-gray-400">Connect with dietitians to accelerate your progress</p>
+                                <p className="text-sm text-gray-400">Connect with nutritionists to accelerate your progress</p>
                             </div>
                         </div>
                     </div>

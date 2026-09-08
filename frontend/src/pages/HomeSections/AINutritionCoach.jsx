@@ -26,7 +26,7 @@ const AINutritionCoach = () => {
                     <span className="text-[#a5d391] font-bold tracking-widest uppercase text-sm mb-4 block">Meet Your New Guide</span>
                     <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">24/7 AI Nutrition Coach</h2>
                     <p className="text-white/60 text-lg leading-relaxed mb-8">
-                        Imagine having a world-class dietitian in your pocket, available 24/7. Our AI coach analyzes your daily inputs, answers complex nutritional questions instantly, and adjusts your plan in real-time based on your progress.
+                        Imagine having a world-class nutritionist in your pocket, available 24/7. Our AI coach analyzes your daily inputs, answers complex nutritional questions instantly, and adjusts your plan in real-time based on your progress.
                     </p>
                     
                     <ul className="space-y-4 mb-10">

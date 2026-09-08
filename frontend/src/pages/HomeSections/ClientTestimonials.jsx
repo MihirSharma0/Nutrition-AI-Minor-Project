@@ -17,7 +17,7 @@ const ClientTestimonials = () => {
         {
             name: "Elena R.",
             result: "PCOS Symptoms Eliminated",
-            quote: "Finally, a team that understands hormonal health. The combination of expert dietitian support and the AI tracking made balancing my macros completely effortless.",
+            quote: "Finally, a team that understands hormonal health. The combination of expert nutritionist support and the AI tracking made balancing my macros completely effortless.",
             avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDZLrZKLb7jzMmFQ5c6qGbPfOriSTc2BC_huR3PJJqupenaW5lWxSI7_t5rEsctSs00W6MwL6qe-qHTKrEjUZAEjRruf0uHFev2ubNwTi4kWIBFgSVq9eO-2GXDO-gHwKpeCq41OZyuAkBa0fNoruRCpaRGqXAPY7wcb-m01KQ-q4hj5mEWx3oKu0Jdv0Iv-jfmt0C8yuj48YFkyamuApv5yVIztLtfvuR9f3xAvA3JU1uCRp1uckTy"
         }
     ];
@@ -26,7 +26,7 @@ const ClientTestimonials = () => {
         <section className="py-section-gap max-w-7xl mx-auto px-8 relative z-20">
             <div className="text-center mb-16">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Real Results</span>
-                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-on-background mb-6">Client Transformations</h2>
+                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-on-background mb-6">User Transformations</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

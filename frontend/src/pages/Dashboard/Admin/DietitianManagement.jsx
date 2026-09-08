@@ -30,21 +30,21 @@ const DietitianManagement = () => {
     };
 
     const deleteDietitian = async (id) => {
-        if(window.confirm("Are you sure you want to delete this dietitian?")) {
+        if(window.confirm("Are you sure you want to delete this nutritionist?")) {
             try {
                 await api.delete(`/admin/users/${id}`);
                 setDietitians(dietitians.filter(d => d.id !== id));
             } catch (error) {
-                console.error("Error deleting dietitian", error);
+                console.error("Error deleting nutritionist", error);
             }
         }
     };
 
     return (
         <div>
-            <h1 className="text-3xl font-bold font-hero-display mb-6">Dietitian Management</h1>
+            <h1 className="text-3xl font-bold font-hero-display mb-6">Nutritionist Management</h1>
             {loading ? (
-                <p>Loading dietitians...</p>
+                <p>Loading nutritionists...</p>
             ) : (
                 <div className="overflow-x-auto bg-white/5 rounded-xl border border-white/10 p-4">
                     <table className="w-full text-left">
@@ -82,7 +82,7 @@ const DietitianManagement = () => {
                             ))}
                             {dietitians.length === 0 && (
                                 <tr>
-                                    <td colSpan="5" className="p-4 text-center text-white/50">No dietitians found.</td>
+                                    <td colSpan="5" className="p-4 text-center text-white/50">No nutritionists found.</td>
                                 </tr>
                             )}
                         </tbody>

@@ -5,7 +5,7 @@ const HowItWorks = () => {
         {
             num: "01",
             title: "Book Consultation",
-            desc: "Schedule a comprehensive 1-on-1 session with our clinical dietitians to map out your baseline and objectives.",
+            desc: "Schedule a comprehensive 1-on-1 session with our clinical nutritionists to map out your baseline and objectives.",
             icon: "event_available"
         },
         {

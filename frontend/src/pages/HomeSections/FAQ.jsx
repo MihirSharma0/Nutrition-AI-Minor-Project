@@ -23,7 +23,7 @@ const FAQ = () => {
         { q: "Is the weight loss sustainable?", a: "Our primary goal is metabolic repair. By avoiding crash diets, the results you achieve are highly sustainable long-term." },
         { q: "What if I hit a plateau?", a: "Plateaus are normal. Our continuous tracking allows us to immediately identify stalls and implement strategic calorie cycling to break through them." },
         // Follow-ups
-        { q: "How much access do I have to my dietitian?", a: "Depending on your tier, you have either weekly scheduled check-ins or 24/7 asynchronous chat support with your dedicated clinician." },
+        { q: "How much access do I have to my nutritionist?", a: "Depending on your tier, you have either weekly scheduled check-ins or 24/7 asynchronous chat support with your dedicated clinician." },
         { q: "Do I have to track my food forever?", a: "No. Tracking is an educational tool. Our ultimate goal is to teach you intuitive eating based on the principles you learn during the program." },
         // Medical Conditions
         { q: "Can you help manage Type 2 Diabetes?", a: "Yes, we specialize in clinical nutrition for diabetes management, focusing on glycemic control through precise carbohydrate partitioning." },
