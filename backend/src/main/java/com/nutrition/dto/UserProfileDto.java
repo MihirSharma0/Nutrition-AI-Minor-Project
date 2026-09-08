@@ -13,5 +13,21 @@ public class UserProfileDto {
     private String activityLevel;
     private String dietaryPreferences;
     private String allergies;
+    
+    private Integer age;
+    private String gender;
+    private String goal;
+    private String dietType;
+    private String lifestyleClass;
+    private String mealBudget;
+    private String favoriteFoods;
+    private String dislikedFoods;
+
+    private Double bmr;
+    private Double tdee;
+    private Integer dailyCaloriesTarget;
+    private Integer proteinTarget;
+    private Integer carbsTarget;
+    private Integer fatsTarget;
     private LocalDateTime updatedAt;
 }

@@ -34,7 +34,7 @@ const UserDashboardLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#080b12] text-white flex font-body-md selection:bg-[#a5d391]/30 selection:text-white relative overflow-hidden">
+        <div className="h-screen bg-[#080b12] text-white flex font-body-md selection:bg-[#a5d391]/30 selection:text-white relative overflow-hidden">
             {/* Ambient Starfield Background */}
             <Starfield />
 
@@ -80,7 +80,7 @@ const UserDashboardLayout = () => {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-grow flex flex-col min-h-screen w-full relative z-10">
+            <main className="flex-grow flex flex-col h-screen w-full relative z-10 overflow-y-auto">
                 {/* Header */}
                 <header className="h-20 bg-[#080b12]/80 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-6 lg:px-12 sticky top-0 z-30">
                     <div className="flex items-center gap-4">

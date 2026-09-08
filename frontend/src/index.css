@@ -29,4 +29,50 @@
   .mint-glow {
     filter: drop-shadow(0 0 12px rgba(165, 211, 145, 0.4));
   }
+
+  /* Light Theme Override Hacks */
+  body.light-theme-override div.bg-\[\#080b12\] {
+      background-color: #f0f4f8 !important;
+      color: #1a202c !important;
+  }
+  body.light-theme-override aside.bg-\[\#080b12\]\/90 {
+      background-color: rgba(255, 255, 255, 0.9) !important;
+      border-color: rgba(0,0,0,0.1) !important;
+  }
+  body.light-theme-override header.bg-\[\#080b12\]\/80 {
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      border-color: rgba(0,0,0,0.1) !important;
+  }
+  body.light-theme-override .text-white {
+      color: #1a202c !important;
+  }
+  body.light-theme-override .text-white\/50, body.light-theme-override .text-white\/60, body.light-theme-override .text-white\/70 {
+      color: rgba(26, 32, 44, 0.6) !important;
+  }
+  body.light-theme-override .border-white\/10 {
+      border-color: rgba(0, 0, 0, 0.1) !important;
+  }
+  body.light-theme-override .bg-white\/5 {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Seamless Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(165, 211, 145, 0.2);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(165, 211, 145, 0.5);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(165, 211, 145, 0.2) transparent;
+  }
 }

@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { ArrowLeft, Sparkles, Target, TrendingUp, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Camera, Check, User, ShieldCheck, X } from 'lucide-react';
 import Starfield from '../../components/Starfield';
 
 const Register = () => {
@@ -10,13 +10,18 @@ const Register = () => {
         lastName: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: 'USER',
         credentials: '',
         specialization: ''
     });
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [avatarFile, setAvatarFile] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const fileInputRef = useRef(null);
+    
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -24,19 +29,54 @@ const Register = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setAvatarFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeAvatar = () => {
+        setAvatarPreview(null);
+        setAvatarFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isLoading) return;
-        
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+
         setIsLoading(true);
         setError('');
         setSuccess('');
-        
+
         try {
-            const result = await register(formData);
+            const result = await register({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                password: formData.password,
+                role: formData.role,
+                credentials: formData.credentials,
+                specialization: formData.specialization,
+                avatar: avatarPreview // base64 string or file if needed
+            });
+
             if (result.success) {
-                setSuccess('Registration successful! Please verify your account.');
-                setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`), 2000);
+                setSuccess('Registration successful! Redirecting to email verification...');
+                setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`), 1500);
             } else {
                 setError(result.message);
                 setIsLoading(false);
@@ -48,175 +88,316 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#080b12] flex items-center justify-center p-4 md:p-8 font-body-md overflow-hidden relative">
+        <div className="min-h-screen bg-[#080b12] text-slate-100 font-sans antialiased flex flex-col justify-between relative selection:bg-[#a5d391]/30 selection:text-[#a5d391] overflow-x-hidden">
             <Starfield />
-            {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-            {/* Back Button */}
-            <button
-                onClick={() => navigate('/')}
-                className="absolute top-6 left-6 md:top-10 md:left-10 z-50 flex items-center gap-2 text-gray-400 hover:text-white transition-all bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md cursor-pointer"
-            >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Home</span>
-            </button>
+            {/* Ambient Background Glows */}
+            <div aria-hidden="true" className="pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden z-0">
+                <div className="w-[700px] h-[500px] bg-[#a5d391]/10 blur-[150px] rounded-full"></div>
+            </div>
 
-            <div className="flex flex-col md:flex-row w-full max-w-[1000px] min-h-[600px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden relative z-10">
+            {/* BEGIN: TopNavigation */}
+            <header className="relative z-10 w-full px-6 py-6 md:px-10 flex items-center justify-between">
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-slate-300 bg-slate-900/60 border border-slate-700/60 backdrop-blur-md hover:bg-slate-800/80 hover:text-white hover:border-slate-500 transition-all duration-200 shadow-sm cursor-pointer"
+                >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Home</span>
+                </button>
+            </header>
+            {/* END: TopNavigation */}
 
-                {/* Left Side - Brand & Features */}
-                <div className="w-full md:w-[45%] bg-black/20 text-white p-10 md:p-12 hidden md:flex flex-col justify-center border-r border-white/5">
-                    <div className="flex items-center gap-2 text-3xl font-bold font-headline-lg mb-4">
-                        <Sparkles className="w-8 h-8 text-green-400" />
-                        <span>AI CalorieMeter</span>
+            {/* BEGIN: MainContent */}
+            <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-4 sm:px-6">
+                
+                {/* Top Branding: Logo & Tagline */}
+                <div className="flex flex-col items-center text-center mb-6 space-y-2.5">
+                    <div 
+                        onClick={() => navigate('/')}
+                        className="flex items-center gap-2.5 cursor-pointer group"
+                    >
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#a5d391] to-emerald-400 flex items-center justify-center shadow-lg shadow-[#a5d391]/20">
+                            <Sparkles className="w-5 h-5 text-slate-950 transform group-hover:scale-110 transition-transform duration-200" />
+                        </div>
+                        <span className="text-2xl font-bold tracking-tight text-white flex items-center gap-1.5 font-hero-display">
+                            NutriMunch
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#a5d391]/10 text-[#a5d391] border border-[#a5d391]/30">AI</span>
+                        </span>
                     </div>
-                    <p className="text-lg text-gray-400 mb-12">
-                        Track, analyze, and optimize your nutrition with AI
+                    <p className="text-sm font-normal text-slate-400 tracking-normal">
+                        The intelligent network for personalized health & AI-powered nutrition.
                     </p>
-
-                    <div className="space-y-8">
-                        <div className="flex items-start gap-4">
-                            <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                                <Target className="w-6 h-6 text-green-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-white text-lg mb-1">Smart Tracking</h3>
-                                <p className="text-sm text-gray-400">Log meals instantly and let AI calculate your calories</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start gap-4">
-                            <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                                <TrendingUp className="w-6 h-6 text-green-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-white text-lg mb-1">Personalized Insights</h3>
-                                <p className="text-sm text-gray-400">Get tailored macro recommendations based on your goals</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start gap-4">
-                            <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                                <Users className="w-6 h-6 text-green-400" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-white text-lg mb-1">Expert Guidance</h3>
-                                <p className="text-sm text-gray-400">Connect with nutritionists to accelerate your progress</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Right Side - Form */}
-                <div className="w-full md:w-[55%] p-10 bg-transparent flex flex-col justify-center my-auto">
-                    <div className="max-w-md w-full mx-auto">
-                        <h2 className="text-3xl font-headline-lg font-bold text-center text-white mb-2">Create Account</h2>
-                        <p className="text-center text-gray-400 mb-6">Join us to start your journey</p>
+                {/* Registration Card */}
+                <div className="w-full max-w-[560px] rounded-[2.5rem] bg-[#0d121c]/80 border border-white/10 p-8 sm:p-10 relative backdrop-blur-2xl shadow-2xl">
+                    
+                    {/* Hidden File Input */}
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        accept="image/*" 
+                        onChange={handleImageChange} 
+                        className="hidden" 
+                    />
 
-                        {error && <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-3 rounded-xl mb-6 text-sm">{error}</div>}
-                        {success && <div className="bg-green-500/20 border border-green-500/50 text-green-200 p-3 rounded-xl mb-6 text-sm">{success}</div>}
+                    {/* Role / Stepper Selection Indicator */}
+                    <div className="flex items-center justify-center gap-3 mb-8">
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, role: 'USER' })}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                                formData.role === 'USER'
+                                ? 'bg-[#a5d391] text-black shadow-[0_0_15px_rgba(165,211,145,0.4)] ring-4 ring-[#a5d391]/20'
+                                : 'bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:text-white'
+                            }`}
+                        >
+                            <User className="w-3.5 h-3.5" />
+                            <span>User Account</span>
+                        </button>
+                        
+                        <div className="w-8 h-[2px] bg-slate-800"></div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">First Name</label>
-                                    <input
-                                        type="text" name="firstName"
-                                        className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors placeholder-gray-600"
-                                        onChange={handleChange} required
-                                        placeholder="John"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-300 mb-2">Last Name</label>
-                                    <input
-                                        type="text" name="lastName"
-                                        className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors placeholder-gray-600"
-                                        onChange={handleChange} required
-                                        placeholder="Doe"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Email</label>
-                                <input
-                                    type="email" name="email"
-                                    className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors placeholder-gray-600"
-                                    onChange={handleChange} required
-                                    placeholder="john@example.com"
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, role: 'NUTRITIONIST' })}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                                formData.role === 'NUTRITIONIST'
+                                ? 'bg-[#a5d391] text-black shadow-[0_0_15px_rgba(165,211,145,0.4)] ring-4 ring-[#a5d391]/20'
+                                : 'bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:text-white'
+                            }`}
+                        >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <span>Nutritionist</span>
+                        </button>
+                    </div>
+
+                    {/* Card Title and Intro Subtitle */}
+                    <div className="text-center mb-6">
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-hero-display">Create Your Account</h1>
+                        <p className="text-sm text-slate-400 mt-1.5 font-normal">
+                            {formData.role === 'NUTRITIONIST' ? 'Join as a verified health expert' : "Let's start with your basic details."}
+                        </p>
+                    </div>
+
+                    {/* Profile Avatar Upload Zone */}
+                    <div className="flex flex-col items-center justify-center mb-6">
+                        {avatarPreview ? (
+                            <div className="relative group flex items-center justify-center">
+                                <img 
+                                    src={avatarPreview} 
+                                    alt="Avatar Preview" 
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-[#a5d391] shadow-lg shadow-[#a5d391]/20"
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Password</label>
-                                <input
-                                    type="password" name="password" minLength="6"
-                                    className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors placeholder-gray-600"
-                                    onChange={handleChange} required
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                            
-                            {formData.role === 'NUTRITIONIST' && (
-                                <>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Credentials / Qualifications</label>
-                                        <input
-                                            type="text" name="credentials"
-                                            className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors placeholder-gray-600"
-                                            onChange={handleChange} required
-                                            placeholder="e.g., MS, RD, CDN"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Specialization</label>
-                                        <input
-                                            type="text" name="specialization"
-                                            className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors placeholder-gray-600"
-                                            onChange={handleChange} required
-                                            placeholder="e.g., Sports Nutrition"
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-300 mb-2">Account Type</label>
-                                <select
-                                    name="role"
-                                    className="w-full px-4 py-2.5 bg-black/30 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-400/50 transition-colors appearance-none"
-                                    onChange={handleChange} required
-                                    value={formData.role}
+                                <button
+                                    type="button"
+                                    onClick={removeAvatar}
+                                    className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md transition-transform transform hover:scale-110 cursor-pointer"
+                                    title="Remove Picture"
                                 >
-                                    <option value="USER" className="bg-[#080b12]">User</option>
-                                    <option value="NUTRITIONIST" className="bg-[#080b12]">Nutritionist</option>
-                                </select>
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold uppercase tracking-wider transition-opacity cursor-pointer"
+                                >
+                                    <Camera className="w-4 h-4 mb-0.5 text-[#a5d391]" />
+                                    Change
+                                </button>
                             </div>
+                        ) : (
+                            <div 
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-20 h-20 rounded-full border-2 border-dashed border-slate-600/80 hover:border-[#a5d391] bg-slate-900/40 hover:bg-[#a5d391]/10 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 group p-2 shadow-inner"
+                            >
+                                <Camera className="w-5 h-5 text-slate-400 group-hover:text-[#a5d391] transition-colors duration-200" />
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#a5d391] mt-1">UPLOAD</span>
+                            </div>
+                        )}
+                        <p className="text-[11px] text-slate-500 mt-2">Click to select profile photo</p>
+                    </div>
 
+                    {error && (
+                        <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl mb-5 text-xs font-medium">
+                            {error}
+                        </div>
+                    )}
+                    {success && (
+                        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-xl mb-5 text-xs font-medium flex items-center gap-2">
+                            <Check className="w-4 h-4 text-emerald-400" />
+                            <span>{success}</span>
+                        </div>
+                    )}
+
+                    {/* Registration Form */}
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        
+                        {/* Row 1: First Name & Last Name (2 columns) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="firstName">
+                                    FIRST NAME <span className="text-[#a5d391]">*</span>
+                                </label>
+                                <input 
+                                    id="firstName"
+                                    name="firstName"
+                                    type="text"
+                                    required
+                                    placeholder="Jane"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="lastName">
+                                    LAST NAME <span className="text-[#a5d391]">*</span>
+                                </label>
+                                <input 
+                                    id="lastName"
+                                    name="lastName"
+                                    type="text"
+                                    required
+                                    placeholder="Doe"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Row 2: Email Address (Full Width) */}
+                        <div>
+                            <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="email">
+                                EMAIL ADDRESS <span className="text-[#a5d391]">*</span>
+                            </label>
+                            <input 
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                                placeholder="jane@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 transition-all"
+                            />
+                        </div>
+
+                        {/* Additional Fields for Nutritionist */}
+                        {formData.role === 'NUTRITIONIST' && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="credentials">
+                                        CREDENTIALS <span className="text-[#a5d391]">*</span>
+                                    </label>
+                                    <input 
+                                        id="credentials"
+                                        name="credentials"
+                                        type="text"
+                                        required
+                                        placeholder="e.g., MS, RD, CDN"
+                                        value={formData.credentials}
+                                        onChange={handleChange}
+                                        className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 transition-all"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="specialization">
+                                        SPECIALIZATION <span className="text-[#a5d391]">*</span>
+                                    </label>
+                                    <input 
+                                        id="specialization"
+                                        name="specialization"
+                                        type="text"
+                                        required
+                                        placeholder="e.g., Sports Nutrition"
+                                        value={formData.specialization}
+                                        onChange={handleChange}
+                                        className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 transition-all"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Row 3: Passwords (2 columns) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="password">
+                                    PASSWORD <span className="text-[#a5d391]">*</span>
+                                </label>
+                                <input 
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    minLength="6"
+                                    required
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 tracking-widest transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[11px] font-semibold tracking-wider uppercase text-slate-300 mb-1.5" htmlFor="confirmPassword">
+                                    CONFIRM PASSWORD <span className="text-[#a5d391]">*</span>
+                                </label>
+                                <input 
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="password"
+                                    minLength="6"
+                                    required
+                                    placeholder="••••••••"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className="w-full rounded-xl bg-[#090d16]/90 border border-white/10 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 focus:outline-none focus:border-[#a5d391]/60 focus:ring-1 focus:ring-[#a5d391]/20 tracking-widest transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button CTA */}
+                        <div className="pt-3">
                             <button 
                                 type="submit" 
                                 disabled={isLoading}
-                                className={`w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-bold py-3.5 rounded-xl transition-all mt-4 text-[15px] ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-[0_0_20px_rgba(74,222,128,0.4)]'}`}
+                                className={`w-full py-3.5 px-4 rounded-xl font-bold text-xs uppercase tracking-widest text-black bg-[#a5d391] hover:bg-white active:bg-slate-200 border border-[#a5d391]/30 shadow-[0_0_20px_rgba(165,211,145,0.3)] flex items-center justify-center gap-2 transform active:scale-[0.99] transition-all duration-150 cursor-pointer ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 {isLoading ? (
                                     <span className="flex items-center justify-center gap-2">
-                                        <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Processing...
+                                        Creating Account...
                                     </span>
                                 ) : (
-                                    'Sign Up'
+                                    <>
+                                        <span>Continue</span>
+                                        <ArrowRight className="w-4 h-4 text-black" />
+                                    </>
                                 )}
                             </button>
-                        </form>
-
-                        <div className="mt-6 text-center text-gray-400 text-sm">
-                            Already have an account? <Link to="/login" className="text-green-400 font-bold hover:text-green-300">Sign in</Link>
                         </div>
+                    </form>
+
+                    {/* Bottom Form Link */}
+                    <div className="mt-6 text-center text-xs text-slate-400">
+                        Already have an account? 
+                        <Link to="/login" className="text-[#a5d391] hover:text-white font-semibold ml-1 transition-colors">
+                            Sign in
+                        </Link>
                     </div>
                 </div>
-            </div>
+            </main>
+            {/* END: MainContent */}
+
+            {/* BEGIN: Footer */}
+            <footer className="relative z-10 py-6 text-center text-xs text-slate-500 font-normal">
+                © 2026 NutriMunch AI. All rights reserved.
+            </footer>
+            {/* END: Footer */}
         </div>
     );
 };

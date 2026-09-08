@@ -24,6 +24,24 @@ public class UserProfile {
     private String activityLevel;
     private String dietaryPreferences;
     private String allergies;
+    
+    // New fields
+    private Integer age;
+    private String gender;
+    private String goal;
+    private String dietType;
+    private String lifestyleClass;
+    private String mealBudget;
+    private String favoriteFoods;
+    private String dislikedFoods;
+
+    // Recalculated target fields
+    private Double bmr;
+    private Double tdee;
+    private Integer dailyCaloriesTarget;
+    private Integer proteinTarget;
+    private Integer carbsTarget;
+    private Integer fatsTarget;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

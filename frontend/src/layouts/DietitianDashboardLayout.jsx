@@ -30,24 +30,24 @@ const DietitianDashboardLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#080b12] text-white flex font-body-md selection:bg-[#a5d391]/30 selection:text-white relative overflow-hidden">
-            {/* Ambient Starfield Background */}
+        <div className="h-screen bg-[#080b12] text-white flex font-body-md selection:bg-[#a5d391]/30 selection:text-white relative overflow-hidden">
+            {/* Ambient Starfield Background matching Home Page */}
             <Starfield />
 
-            {/* Ambient Glows */}
-            <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#a5d391]/5 blur-[140px] rounded-full pointer-events-none z-0"></div>
+            {/* Ambient Lighting Glows */}
+            <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#a5d391]/5 blur-[140px] rounded-full pointer-events-none z-0"></div>
 
             {/* Sidebar (Desktop) */}
             <aside className="hidden lg:flex flex-col w-72 bg-[#080b12]/90 backdrop-blur-2xl border-r border-white/10 relative z-20">
                 <div className="p-8 border-b border-white/10 relative overflow-hidden">
                     <div className={`absolute top-0 left-0 w-32 h-32 ${accentBg} blur-[80px] -translate-x-1/2 -translate-y-1/2 opacity-25 pointer-events-none`}></div>
                     <Link to="/" className="text-xl font-hero-display font-bold flex items-center gap-2 text-white relative z-10">
-                        <span className={`material-symbols-outlined ${accentColor} text-2xl drop-shadow-[0_0_8px_rgba(165,211,145,0.4)]`}>medical_services</span>
+                        <span className={`material-symbols-outlined ${accentColor} text-2xl drop-shadow-[0_0_8px_rgba(165,211,145,0.4)]`}>nutrition</span>
                         NutriMunch <span className="font-normal italic text-white/50">Nutritionist</span>
                     </Link>
                     <div className="mt-2 text-[10px] font-black text-[#a5d391] uppercase tracking-[0.2em] relative z-10 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#a5d391] animate-pulse"></span>
-                        Nutritionist Console
+                        Clinical Console
                     </div>
                 </div>
 
@@ -70,13 +70,13 @@ const DietitianDashboardLayout = () => {
                 <div className="p-4 border-t border-white/10">
                     <button onClick={handleLogout} className="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors w-full text-left cursor-pointer">
                         <span className="material-symbols-outlined text-[20px]">logout</span>
-                        Disconnect
+                        Terminate Session
                     </button>
                 </div>
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-grow flex flex-col min-h-screen w-full relative z-10">
+            <main className="flex-grow flex flex-col h-screen w-full relative z-10 overflow-y-auto">
                 {/* Header */}
                 <header className="h-20 bg-[#080b12]/80 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-6 lg:px-12 sticky top-0 z-30">
                     <div className="flex items-center gap-4">
