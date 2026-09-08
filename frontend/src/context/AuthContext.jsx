@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
             
             setToken(token);
             setUser(userData);
-            return { success: true };
+            return { success: true, role: userData.role };
         } catch (error) {
             return { 
                 success: false, 

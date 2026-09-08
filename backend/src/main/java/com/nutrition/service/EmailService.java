@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import org.springframework.scheduling.annotation.Async;
+
 @Service
 public class EmailService {
 
@@ -22,6 +24,7 @@ public class EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Async
     public void sendOtpVerificationEmail(String toEmail, String userName, String otp) throws MessagingException {
         Context context = new Context();
         context.setVariable("name", userName);
@@ -41,6 +44,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendAccountVerifiedEmail(String toEmail, String userName) throws MessagingException {
         Context context = new Context();
         context.setVariable("name", userName);

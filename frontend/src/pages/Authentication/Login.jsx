@@ -19,7 +19,8 @@ const Login = () => {
         // We pass email and password, the backend handles the role internally
         const result = await login(email, password);
         if (result.success) {
-            navigate('/');
+            const role = result.role?.toLowerCase() || 'user';
+            navigate(`/dashboard/${role}`);
         } else {
             setError(result.message);
         }

@@ -1,8 +1,16 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useContext(AuthContext);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
 
     return (
         <div className="fixed top-4 left-4 right-4 z-50 pointer-events-none">
@@ -27,11 +35,29 @@ const Navbar = () => {
                             )
                         })}
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                         <Link to="/contact" className="hidden lg:block text-white/70 text-sm hover:text-white transition-colors font-medium">Contact</Link>
-                        <Link to="/login" className="cursor-pointer bg-gradient-to-r from-primary/60 to-primary/40 text-white px-6 py-2 rounded-full text-sm font-medium shadow-[0_0_20px_rgba(64,104,50,0.4)] border border-primary-container/40 hover:shadow-[0_0_30px_rgba(64,104,50,0.8)] hover:border-primary-container/80 transition-all hover:-translate-y-0.5">
-                            Login/Sign up
-                        </Link>
+                        
+                        {user ? (
+                            <>
+                                <Link 
+                                    to={`/dashboard/${user.role?.toLowerCase() || 'user'}`}
+                                    className="cursor-pointer bg-white/10 text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 hover:bg-white/20 transition-all"
+                                >
+                                    Dashboard
+                                </Link>
+                                <button 
+                                    onClick={handleLogout}
+                                    className="cursor-pointer bg-red-500/80 text-white px-5 py-2 rounded-full text-sm font-medium shadow-[0_0_20px_rgba(239,68,68,0.4)] border border-red-400/40 hover:shadow-[0_0_30px_rgba(239,68,68,0.8)] hover:bg-red-500 transition-all hover:-translate-y-0.5"
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <Link to="/login" className="cursor-pointer bg-gradient-to-r from-primary/60 to-primary/40 text-white px-6 py-2 rounded-full text-sm font-medium shadow-[0_0_20px_rgba(64,104,50,0.4)] border border-primary-container/40 hover:shadow-[0_0_30px_rgba(64,104,50,0.8)] hover:border-primary-container/80 transition-all hover:-translate-y-0.5">
+                                Login/Sign up
+                            </Link>
+                        )}
                     </div>
                 </div>
 
