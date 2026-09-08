@@ -4,14 +4,23 @@ import api from '../../../api/axios';
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filterRole, setFilterRole] = useState('ALL');
+    
+    // Password reset modal state
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [newPassword, setNewPassword] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
+    const [resetMessage, setResetMessage] = useState(null);
+    const [resetError, setResetError] = useState(null);
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
     const fetchUsers = async () => {
+        setLoading(true);
         try {
-            const response = await api.get('/admin/users');
+            const response = await api.get('/admin/all-users');
             setUsers(response.data);
         } catch (error) {
             console.error("Error fetching users", error);
@@ -21,7 +30,7 @@ const UserManagement = () => {
     };
 
     const deleteUser = async (id) => {
-        if(window.confirm("Are you sure you want to delete this user?")) {
+        if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
             try {
                 await api.delete(`/admin/users/${id}`);
                 setUsers(users.filter(u => u.id !== id));
@@ -40,49 +49,220 @@ const UserManagement = () => {
         }
     };
 
+    const handleOpenResetModal = (user) => {
+        setSelectedUser(user);
+        setNewPassword('');
+        setResetMessage(null);
+        setResetError(null);
+    };
+
+    const handleCloseResetModal = () => {
+        setSelectedUser(null);
+        setNewPassword('');
+        setResetMessage(null);
+        setResetError(null);
+    };
+
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        if (!newPassword.trim() || newPassword.length < 6) {
+            setResetError("Password must be at least 6 characters long.");
+            return;
+        }
+
+        setResetLoading(true);
+        setResetError(null);
+        setResetMessage(null);
+
+        try {
+            const response = await api.post(`/admin/users/${selectedUser.id}/reset-password`, {
+                newPassword: newPassword
+            });
+            setResetMessage(response.data.message || "Password reset successfully!");
+            setTimeout(() => {
+                handleCloseResetModal();
+            }, 1800);
+        } catch (err) {
+            setResetError(err.response?.data?.message || "Failed to reset password.");
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
+    const filteredUsers = filterRole === 'ALL' 
+        ? users 
+        : users.filter(u => u.role === filterRole);
+
     return (
-        <div>
-            <h1 className="text-3xl font-bold font-hero-display mb-6">User Management</h1>
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div className="text-[#a5d391] text-[10px] font-black tracking-[0.2em] uppercase flex items-center gap-2 mb-2">
+                        <span className="w-1.5 h-1.5 bg-[#a5d391] rounded-full animate-pulse"></span>
+                        Directory Override
+                    </div>
+                    <h1 className="text-4xl font-bold font-hero-display text-white">User Management</h1>
+                    <p className="text-white/60 text-sm mt-1 font-light">
+                        View all registered users, manage roles, and reset account credentials.
+                    </p>
+                </div>
+                
+                {/* Role Filter Tabs */}
+                <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 text-xs font-bold backdrop-blur-md">
+                    {['ALL', 'USER', 'NUTRITIONIST', 'ADMIN'].map((role) => (
+                        <button
+                            key={role}
+                            onClick={() => setFilterRole(role)}
+                            className={`px-4 py-2 rounded-xl transition-all duration-300 cursor-pointer ${filterRole === role ? 'bg-[#a5d391] text-black shadow-[0_0_15px_rgba(165,211,145,0.3)]' : 'text-white/60 hover:text-white'}`}
+                        >
+                            {role}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {loading ? (
-                <p>Loading users...</p>
+                <div className="p-12 text-center text-white/60 font-mono bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10">
+                    <span className="material-symbols-outlined animate-spin text-3xl mb-2 text-[#a5d391] block">progress_activity</span>
+                    Loading user accounts...
+                </div>
             ) : (
-                <div className="overflow-x-auto bg-white/5 rounded-xl border border-white/10 p-4">
-                    <table className="w-full text-left">
+                <div className="overflow-x-auto bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl p-2">
+                    <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-white/10 text-white/60">
-                                <th className="p-3">ID</th>
-                                <th className="p-3">Name</th>
-                                <th className="p-3">Email</th>
-                                <th className="p-3">Role</th>
-                                <th className="p-3 text-right">Actions</th>
+                            <tr className="border-b border-white/10 bg-white/5 text-white/60 text-xs uppercase tracking-wider font-mono">
+                                <th className="p-5 rounded-tl-2xl">ID</th>
+                                <th className="p-5">User Name</th>
+                                <th className="p-5">Email</th>
+                                <th className="p-5">Status</th>
+                                <th className="p-5">Role</th>
+                                <th className="p-5 text-right rounded-tr-2xl">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {users.map(user => (
-                                <tr key={user.id} className="border-b border-white/5">
-                                    <td className="p-3">{user.id}</td>
-                                    <td className="p-3">{user.firstName} {user.lastName}</td>
-                                    <td className="p-3">{user.email}</td>
-                                    <td className="p-3">
-                                        <select 
-                                            value={user.role} 
-                                            onChange={(e) => changeRole(user.id, e.target.value)}
-                                            className="bg-black/20 border border-white/20 rounded p-1 text-white"
-                                        >
-                                            <option value="USER">User</option>
-                                            <option value="DIETITIAN">Dietitian</option>
-                                            <option value="ADMIN">Admin</option>
-                                        </select>
-                                    </td>
-                                    <td className="p-3 text-right">
-                                        <button onClick={() => deleteUser(user.id)} className="text-red-400 hover:text-red-300">
-                                            Delete
-                                        </button>
+                        <tbody className="divide-y divide-white/5 text-sm">
+                            {filteredUsers.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="p-12 text-center text-white/40 font-light">
+                                        No users found matching filter.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredUsers.map(user => (
+                                    <tr key={user.id} className="hover:bg-white/5 transition-colors">
+                                        <td className="p-5 font-mono text-white/40">{user.id}</td>
+                                        <td className="p-5 font-bold text-white">
+                                            {user.firstName} {user.lastName}
+                                        </td>
+                                        <td className="p-5 font-mono text-white/80">{user.email}</td>
+                                        <td className="p-5">
+                                            {user.verified ? (
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#a5d391]/15 text-[#a5d391] border border-[#a5d391]/30">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-[#a5d391]"></span> Verified
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Pending OTP
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="p-5">
+                                            <select 
+                                                value={user.role} 
+                                                onChange={(e) => changeRole(user.id, e.target.value)}
+                                                className="bg-black/40 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#a5d391] font-mono cursor-pointer"
+                                            >
+                                                <option value="USER">USER</option>
+                                                <option value="NUTRITIONIST">NUTRITIONIST</option>
+                                                <option value="ADMIN">ADMIN</option>
+                                            </select>
+                                        </td>
+                                        <td className="p-5 text-right space-x-3">
+                                            <button 
+                                                onClick={() => handleOpenResetModal(user)} 
+                                                className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">lock_reset</span>
+                                                Reset Password
+                                            </button>
+                                            <button 
+                                                onClick={() => deleteUser(user.id)} 
+                                                className="inline-flex items-center gap-1 text-xs font-bold text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Reset Password Modal */}
+            {selectedUser && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+                    <div className="bg-[#080b12] border border-white/15 rounded-[2.5rem] w-full max-w-md p-8 space-y-6 relative shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                            <h3 className="text-2xl font-bold font-hero-display text-white flex items-center gap-2">
+                                <span className="material-symbols-outlined text-amber-400">lock_reset</span>
+                                Reset Account Password
+                            </h3>
+                            <button onClick={handleCloseResetModal} className="text-white/40 hover:text-white cursor-pointer">
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-xs space-y-1 font-mono">
+                            <div className="text-white/50">Target User:</div>
+                            <div className="text-white font-bold text-base">{selectedUser.firstName} {selectedUser.lastName}</div>
+                            <div className="text-[#a5d391]">{selectedUser.email}</div>
+                        </div>
+
+                        {resetError && (
+                            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 text-xs font-mono">
+                                {resetError}
+                            </div>
+                        )}
+
+                        {resetMessage && (
+                            <div className="p-3.5 bg-[#a5d391]/15 border border-[#a5d391]/30 rounded-xl text-[#a5d391] text-xs font-mono">
+                                {resetMessage}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleResetPassword} className="space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-white/70 uppercase mb-2">New Password</label>
+                                <input
+                                    type="password"
+                                    required
+                                    placeholder="Enter new password (min 6 chars)"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-[#a5d391]"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={handleCloseResetModal}
+                                    className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-2xl font-bold transition-all cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={resetLoading}
+                                    className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold text-sm rounded-2xl transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                                >
+                                    {resetLoading ? "Updating..." : "Confirm Password Reset"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

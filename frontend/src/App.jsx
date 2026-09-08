@@ -44,6 +44,7 @@ import DietitianReports from './pages/Dashboard/Dietitian/DietitianReports';
 import AdminDashboardLayout from './layouts/AdminDashboardLayout';
 import AdminHome from './pages/Dashboard/Admin/AdminHome';
 import UserManagement from './pages/Dashboard/Admin/UserManagement';
+import SqlConsole from './pages/Dashboard/Admin/SqlConsole';
 import DietitianManagement from './pages/Dashboard/Admin/DietitianManagement';
 import BlogManagement from './pages/Dashboard/Admin/BlogManagement';
 import RecipeManagement from './pages/Dashboard/Admin/RecipeManagement';
@@ -107,6 +108,7 @@ function App() {
             <Route path="/dashboard/admin" element={<AdminDashboardLayout />}>
               <Route index element={<AdminHome />} />
               <Route path="users" element={<UserManagement />} />
+              <Route path="sql" element={<SqlConsole />} />
               <Route path="dietitians" element={<DietitianManagement />} />
               <Route path="blogs" element={<BlogManagement />} />
               <Route path="recipes" element={<RecipeManagement />} />

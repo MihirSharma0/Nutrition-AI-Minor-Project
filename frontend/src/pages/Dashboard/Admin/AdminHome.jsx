@@ -1,50 +1,274 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../../api/axios';
 
 const AdminHome = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [credentials, setCredentials] = useState({
+        email: import.meta.env.VITE_ADMIN_EMAIL || 'admin@nutrimunch.com',
+        password: import.meta.env.VITE_ADMIN_PASSWORD || 'AdminPass123!'
+    });
+    const [copied, setCopied] = useState(false);
+
+    // Edit Modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editEmail, setEditEmail] = useState('');
+    const [editPassword, setEditPassword] = useState('');
+    const [updateLoading, setUpdateLoading] = useState(false);
+    const [updateMessage, setUpdateMessage] = useState(null);
+    const [updateError, setUpdateError] = useState(null);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get('/admin/analytics');
-                setStats(response.data);
+                const [statsRes, credsRes] = await Promise.all([
+                    api.get('/admin/analytics'),
+                    api.get('/admin/credentials')
+                ]);
+                setStats(statsRes.data);
+                if (credsRes.data && credsRes.data.email) {
+                    setCredentials({
+                        email: credsRes.data.email,
+                        password: credsRes.data.password || credentials.password
+                    });
+                }
             } catch (error) {
-                console.error("Error fetching analytics", error);
+                console.error("Error fetching admin telemetry", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchStats();
+        fetchData();
     }, []);
 
+    const handleCopy = () => {
+        navigator.clipboard.writeText(`Email: ${credentials.email}\nPassword: ${credentials.password}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleOpenEditModal = () => {
+        setEditEmail(credentials.email);
+        setEditPassword(credentials.password);
+        setUpdateMessage(null);
+        setUpdateError(null);
+        setIsEditModalOpen(true);
+    };
+
+    const handleSaveCredentials = async (e) => {
+        e.preventDefault();
+        setUpdateLoading(true);
+        setUpdateMessage(null);
+        setUpdateError(null);
+
+        try {
+            const response = await api.put('/admin/credentials', {
+                email: editEmail,
+                password: editPassword
+            });
+            
+            setCredentials({
+                email: response.data.email || editEmail,
+                password: response.data.password || editPassword
+            });
+            
+            setUpdateMessage("Admin credentials updated in database!");
+            setTimeout(() => {
+                setIsEditModalOpen(false);
+            }, 1500);
+        } catch (err) {
+            setUpdateError(err.response?.data?.message || "Failed to update credentials.");
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
+
     return (
-        <div>
-            <h1 className="text-3xl font-bold font-hero-display mb-6">System Core Overview</h1>
-            {loading ? (
-                <p className="text-white/60">Loading stats...</p>
-            ) : stats ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="p-6 bg-white/5 rounded-xl border border-white/10">
-                        <h3 className="text-lg text-white/70">Total Users</h3>
-                        <p className="text-4xl font-bold text-accent-green mt-2">{stats.totalUsers}</p>
+        <div className="space-y-10">
+            {/* Top Header */}
+            <div>
+                <div className="text-[#a5d391] text-[10px] font-black tracking-[0.2em] uppercase flex items-center gap-2 mb-2 drop-shadow-[0_0_4px_rgba(165,211,145,0.3)]">
+                    <span className="w-1.5 h-1.5 bg-[#a5d391] rounded-full animate-pulse"></span>
+                    System Control Center
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold font-hero-display text-white tracking-tight">System Core Overview</h1>
+                <p className="text-white/60 text-base mt-2 max-w-2xl font-light">
+                    Real-time precision health telemetry and master administrator override controls.
+                </p>
+            </div>
+
+            {/* Admin Credentials Banner */}
+            <div className="bg-white/5 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden shadow-2xl shadow-[#a5d391]/5">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-[#a5d391]/10 rounded-full blur-[100px] pointer-events-none"></div>
+                
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+                    <div className="space-y-3">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#a5d391]/15 text-[#a5d391] rounded-full text-xs font-mono font-bold border border-[#a5d391]/30 shadow-[0_0_12px_rgba(165,211,145,0.2)]">
+                            <span className="w-2 h-2 rounded-full bg-[#a5d391] animate-pulse"></span>
+                            ENVIRONMENT SEEDED CREDENTIALS
+                        </div>
+                        <h2 className="text-2xl font-bold text-white font-hero-display">Master Credentials Node</h2>
+                        <p className="text-white/70 text-sm max-w-xl font-light leading-relaxed">
+                            These credentials are synced directly with your backend environment setup. You can copy or edit them dynamically below.
+                        </p>
                     </div>
-                    <div className="p-6 bg-white/5 rounded-xl border border-white/10">
-                        <h3 className="text-lg text-white/70">Total Dietitians</h3>
-                        <p className="text-4xl font-bold text-accent-blue mt-2">{stats.totalDietitians}</p>
-                    </div>
-                    <div className="p-6 bg-white/5 rounded-xl border border-white/10">
-                        <h3 className="text-lg text-white/70">Total Appointments</h3>
-                        <p className="text-4xl font-bold text-accent-orange mt-2">{stats.totalAppointments}</p>
-                    </div>
-                    <div className="p-6 bg-white/5 rounded-xl border border-white/10">
-                        <h3 className="text-lg text-white/70">Total Revenue</h3>
-                        <p className="text-4xl font-bold text-accent-purple mt-2">${stats.totalRevenue}</p>
+
+                    <div className="bg-black/40 backdrop-blur-md p-5 rounded-2xl border border-white/10 space-y-3 font-mono text-xs min-w-[320px] shadow-lg">
+                        <div className="flex justify-between items-center text-white/50 pb-2 border-b border-white/10">
+                            <span className="tracking-wider">MASTER ACCESS</span>
+                            <div className="flex items-center gap-3">
+                                <button 
+                                    onClick={handleOpenEditModal} 
+                                    className="text-amber-400 hover:text-amber-300 font-sans text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-sm">edit</span>
+                                    Edit
+                                </button>
+                                <button 
+                                    onClick={handleCopy} 
+                                    className="text-[#a5d391] hover:text-white font-sans text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
+                                    {copied ? 'Copied!' : 'Copy'}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex justify-between text-white py-0.5">
+                            <span className="text-white/60">Email:</span>
+                            <span className="font-bold text-[#a5d391]">{credentials.email}</span>
+                        </div>
+                        <div className="flex justify-between text-white py-0.5">
+                            <span className="text-white/60">Password:</span>
+                            <span className="font-bold text-amber-300">{credentials.password}</span>
+                        </div>
                     </div>
                 </div>
-            ) : (
-                <p className="text-red-400">Failed to load analytics.</p>
+            </div>
+
+            {/* Quick Action Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Link to="/dashboard/admin/users" className="p-7 bg-white/5 backdrop-blur-xl hover:bg-white/10 border border-white/10 hover:border-[#a5d391]/40 rounded-[2rem] transition-all duration-300 group flex items-center gap-5 shadow-xl hover:-translate-y-1">
+                    <div className="w-14 h-14 rounded-2xl bg-[#a5d391]/15 text-[#a5d391] flex items-center justify-center border border-[#a5d391]/30 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(165,211,145,0.2)]">
+                        <span className="material-symbols-outlined text-3xl">manage_accounts</span>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-white text-lg group-hover:text-[#a5d391] transition-colors">User Management & Password Reset</h3>
+                        <p className="text-sm text-white/50 font-light mt-0.5">View all user accounts and reset credentials directly.</p>
+                    </div>
+                </Link>
+
+                <Link to="/dashboard/admin/sql" className="p-7 bg-white/5 backdrop-blur-xl hover:bg-white/10 border border-white/10 hover:border-[#a5d391]/40 rounded-[2rem] transition-all duration-300 group flex items-center gap-5 shadow-xl hover:-translate-y-1">
+                    <div className="w-14 h-14 rounded-2xl bg-[#a5d391]/15 text-[#a5d391] flex items-center justify-center border border-[#a5d391]/30 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(165,211,145,0.2)]">
+                        <span className="material-symbols-outlined text-3xl">terminal</span>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-white text-lg group-hover:text-[#a5d391] transition-colors">SQL Query Console</h3>
+                        <p className="text-sm text-white/50 font-light mt-0.5">Execute raw SQL queries against production database tables.</p>
+                    </div>
+                </Link>
+            </div>
+
+            {/* Core Stats */}
+            <div className="space-y-4">
+                <h2 className="text-2xl font-bold font-hero-display text-white">Live System Metrics</h2>
+                {loading ? (
+                    <div className="p-12 text-center text-white/50 font-mono bg-white/5 rounded-[2rem] border border-white/10">
+                        <span className="material-symbols-outlined animate-spin text-3xl text-[#a5d391] mb-2 block">progress_activity</span>
+                        Fetching system telemetry...
+                    </div>
+                ) : stats ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-[#a5d391]/40 transition-all duration-300 shadow-xl">
+                            <h3 className="text-sm text-white/60 font-medium">Total Registered Users</h3>
+                            <p className="text-4xl font-bold text-[#a5d391] font-hero-display mt-3">{stats.totalUsers}</p>
+                        </div>
+                        <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-sky-400/40 transition-all duration-300 shadow-xl">
+                            <h3 className="text-sm text-white/60 font-medium">Active Dietitians</h3>
+                            <p className="text-4xl font-bold text-sky-400 font-hero-display mt-3">{stats.totalNutritionists || stats.totalDietitians || 0}</p>
+                        </div>
+                        <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-amber-400/40 transition-all duration-300 shadow-xl">
+                            <h3 className="text-sm text-white/60 font-medium">Total Appointments</h3>
+                            <p className="text-4xl font-bold text-amber-400 font-hero-display mt-3">{stats.totalAppointments}</p>
+                        </div>
+                        <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-purple-400/40 transition-all duration-300 shadow-xl">
+                            <h3 className="text-sm text-white/60 font-medium">Total Platform Revenue</h3>
+                            <p className="text-4xl font-bold text-purple-400 font-hero-display mt-3">${stats.totalRevenue}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="text-red-400 font-mono p-6 bg-red-500/10 border border-red-500/20 rounded-2xl">Failed to load system metrics.</p>
+                )}
+            </div>
+
+            {/* Edit Credentials Modal */}
+            {isEditModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+                    <div className="bg-[#080b12] border border-white/15 rounded-[2.5rem] w-full max-w-md p-8 space-y-6 relative shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                            <h3 className="text-2xl font-bold font-hero-display text-white flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[#a5d391]">edit_square</span>
+                                Update Master Credentials
+                            </h3>
+                            <button onClick={() => setIsEditModalOpen(false)} className="text-white/40 hover:text-white cursor-pointer">
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        {updateError && (
+                            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 text-xs font-mono">
+                                {updateError}
+                            </div>
+                        )}
+
+                        {updateMessage && (
+                            <div className="p-3.5 bg-[#a5d391]/15 border border-[#a5d391]/30 rounded-xl text-[#a5d391] text-xs font-mono">
+                                {updateMessage}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSaveCredentials} className="space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-white/70 uppercase mb-2">Admin Email</label>
+                                <input
+                                    type="email"
+                                    required
+                                    value={editEmail}
+                                    onChange={(e) => setEditEmail(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-[#a5d391]"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-white/70 uppercase mb-2">Admin Password</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={editPassword}
+                                    onChange={(e) => setEditPassword(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-[#a5d391] font-mono"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditModalOpen(false)}
+                                    className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-2xl font-bold transition-all cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={updateLoading}
+                                    className="px-6 py-2.5 bg-[#a5d391] hover:bg-white disabled:opacity-50 text-black font-bold text-sm rounded-2xl transition-all cursor-pointer shadow-[0_0_20px_rgba(165,211,145,0.4)]"
+                                >
+                                    {updateLoading ? "Saving..." : "Save Credentials"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     );

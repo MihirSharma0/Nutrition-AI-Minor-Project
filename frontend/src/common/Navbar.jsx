@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { getDashboardUrl } from '../utils/roleUtils';
 
 const Navbar = () => {
     const location = useLocation();
@@ -41,7 +42,7 @@ const Navbar = () => {
                         {user ? (
                             <>
                                 <Link 
-                                    to={`/dashboard/${user.role?.toLowerCase() || 'user'}`}
+                                    to={getDashboardUrl(user?.role)}
                                     className="cursor-pointer bg-white/10 text-white px-5 py-2 rounded-full text-sm font-medium border border-white/20 hover:bg-white/20 transition-all"
                                 >
                                     Dashboard

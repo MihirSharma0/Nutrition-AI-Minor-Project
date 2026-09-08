@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { ArrowLeft, Sparkles, Target, TrendingUp, Users, Eye, EyeOff, Shield, Activity, Users as UsersIcon } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 import Starfield from '../../components/Starfield';
+import { getDashboardUrl } from '../../utils/roleUtils';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -18,8 +19,7 @@ const Login = () => {
         try {
             const result = await googleLogin(tokenResponse.access_token);
             if (result.success) {
-                const role = result.role?.toLowerCase() || 'user';
-                navigate(`/dashboard/${role}`);
+                navigate(getDashboardUrl(result.role));
             } else {
                 setError(result.message);
             }
@@ -39,8 +39,7 @@ const Login = () => {
         // We pass email and password, the backend handles the role internally
         const result = await login(email, password);
         if (result.success) {
-            const role = result.role?.toLowerCase() || 'user';
-            navigate(`/dashboard/${role}`);
+            navigate(getDashboardUrl(result.role));
         } else {
             setError(result.message);
         }
