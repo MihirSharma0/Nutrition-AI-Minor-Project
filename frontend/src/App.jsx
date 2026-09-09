@@ -39,6 +39,8 @@ import ClientManagement from './pages/Dashboard/Dietitian/ClientManagement';
 import DietPlanBuilder from './pages/Dashboard/Dietitian/DietPlanBuilder';
 import AppointmentManagement from './pages/Dashboard/Dietitian/AppointmentManagement';
 import DietitianReports from './pages/Dashboard/Dietitian/DietitianReports';
+import NutritionistDashboardLayout from './layouts/NutritionistDashboardLayout';
+import NutritionistProfile from './pages/Dashboard/Nutritionist/NutritionistProfile';
 
 // Admin Dashboard Layout & Pages
 import AdminDashboardLayout from './layouts/AdminDashboardLayout';
@@ -50,6 +52,7 @@ import BlogManagement from './pages/Dashboard/Admin/BlogManagement';
 import RecipeManagement from './pages/Dashboard/Admin/RecipeManagement';
 import PaymentManagement from './pages/Dashboard/Admin/PaymentManagement';
 import AdminAnalytics from './pages/Dashboard/Admin/AdminAnalytics';
+import AdminProfile from './pages/Dashboard/Admin/AdminProfile';
 
 const queryClient = new QueryClient();
 
@@ -95,9 +98,10 @@ function App() {
               <Route path="ai-image" element={<AiImageAnalyzer />} />
             </Route>
 
-            {/* Dietitian Dashboard Routes */}
-            <Route path="/dashboard/dietitian" element={<DietitianDashboardLayout />}>
+            {/* Nutritionist Dashboard Routes */}
+            <Route path="/dashboard/nutritionist" element={<NutritionistDashboardLayout />}>
               <Route index element={<DietitianHome />} />
+              <Route path="profile" element={<NutritionistProfile />} />
               <Route path="clients" element={<ClientManagement />} />
               <Route path="builder" element={<DietPlanBuilder />} />
               <Route path="schedule" element={<AppointmentManagement />} />
@@ -107,6 +111,7 @@ function App() {
             {/* Admin Dashboard Routes */}
             <Route path="/dashboard/admin" element={<AdminDashboardLayout />}>
               <Route index element={<AdminHome />} />
+              <Route path="profile" element={<AdminProfile />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="sql" element={<SqlConsole />} />
               <Route path="dietitians" element={<DietitianManagement />} />

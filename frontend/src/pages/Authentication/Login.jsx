@@ -13,12 +13,65 @@ const Login = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const [activeTab, setActiveTab] = useState('USER');
     const [error, setError] = useState('');
+    const [requiresRoleSelection, setRequiresRoleSelection] = useState(false);
+    const [onboardingStep, setOnboardingStep] = useState(1);
+    const [selectedRole, setSelectedRole] = useState(null);
+    const [pendingGoogleCredential, setPendingGoogleCredential] = useState(null);
+    
+    // Profile Fields
+    const [age, setAge] = useState('');
+    const [gender, setGender] = useState('Not Specified');
+    const [heightCm, setHeightCm] = useState('');
+    const [weightKg, setWeightKg] = useState('');
+    const [goal, setGoal] = useState('Maintenance');
+    const [credentials, setCredentials] = useState('');
+    const [specialization, setSpecialization] = useState('');
+
     const { login, googleLogin } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleGoogleLoginSuccess = async (tokenResponse) => {
         try {
-            const result = await googleLogin(tokenResponse.access_token);
+            const credential = tokenResponse.access_token;
+            const result = await googleLogin(credential);
+            if (result.success) {
+                navigate(getDashboardUrl(result.role));
+            } else if (result.requiresRole) {
+                setPendingGoogleCredential(credential);
+                setRequiresRoleSelection(true);
+            } else {
+                setError(result.message);
+            }
+        } catch (err) {
+            setError('Google login failed. Please try again.');
+        }
+    };
+
+    const handleRoleSelection = (role) => {
+        setSelectedRole(role);
+        setOnboardingStep(2);
+    };
+
+    const handleOnboardingSubmit = async (e) => {
+        if (e) e.preventDefault();
+        setRequiresRoleSelection(false);
+        if (!pendingGoogleCredential) return;
+        
+        let profileData = {};
+        if (selectedRole === 'USER') {
+            profileData = {
+                age: age ? parseInt(age) : null,
+                gender,
+                heightCm: heightCm ? parseFloat(heightCm) : null,
+                weightKg: weightKg ? parseFloat(weightKg) : null,
+                goal
+            };
+        } else if (selectedRole === 'NUTRITIONIST') {
+            profileData = { credentials, specialization };
+        }
+
+        try {
+            const result = await googleLogin(pendingGoogleCredential, selectedRole, profileData);
             if (result.success) {
                 navigate(getDashboardUrl(result.role));
             } else {
@@ -57,6 +110,124 @@ const Login = () => {
 
             {/* Ambient Background Glows */}
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#a5d391]/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+            {/* BEGIN: Google Role Selection & Onboarding Modal */}
+            {requiresRoleSelection && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080b12]/80 backdrop-blur-sm">
+                    <div className="w-full max-w-md bg-[#0d121c] border border-[#a5d391]/30 rounded-3xl p-8 shadow-[0_0_40px_rgba(165,211,145,0.15)] flex flex-col items-center">
+                        <div className="w-12 h-12 bg-gradient-to-tr from-[#a5d391] to-emerald-400 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-[#a5d391]/20">
+                            <Sparkles className="w-6 h-6 text-black" />
+                        </div>
+                        
+                        {onboardingStep === 1 && (
+                            <>
+                                <h2 className="text-xl font-bold text-white mb-2 text-center">Choose your account type</h2>
+                                <p className="text-sm text-slate-400 text-center mb-8">
+                                    We noticed you're signing in with Google for the first time. How would you like to use NutriMunch AI?
+                                </p>
+                                <div className="flex flex-col gap-4 w-full">
+                                    <button 
+                                        onClick={() => handleRoleSelection('USER')}
+                                        className="w-full py-4 px-4 rounded-xl font-bold text-sm uppercase tracking-widest text-black bg-[#a5d391] hover:bg-white active:bg-slate-200 transition duration-200 cursor-pointer"
+                                    >
+                                        Continue as User
+                                    </button>
+                                    <button 
+                                        onClick={() => handleRoleSelection('NUTRITIONIST')}
+                                        className="w-full py-4 px-4 rounded-xl font-bold text-sm uppercase tracking-widest text-white bg-white/5 border border-white/10 hover:bg-white/10 transition duration-200 cursor-pointer"
+                                    >
+                                        Continue as Nutritionist
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {onboardingStep === 2 && (
+                            <form onSubmit={handleOnboardingSubmit} className="w-full flex flex-col gap-4">
+                                <h2 className="text-xl font-bold text-white mb-1 text-center">
+                                    {selectedRole === 'USER' ? 'Complete your Profile' : 'Professional Details'}
+                                </h2>
+                                <p className="text-xs text-slate-400 text-center mb-4">
+                                    {selectedRole === 'USER' ? 'Help us personalize your nutrition journey.' : 'Share your professional background.'}
+                                </p>
+                                
+                                {selectedRole === 'USER' ? (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Age</label>
+                                                <input type="number" required value={age} onChange={e => setAge(e.target.value)} placeholder="e.g. 25" className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Gender</label>
+                                                <select value={gender} onChange={e => setGender(e.target.value)} className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none">
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Other">Other</option>
+                                                    <option value="Not Specified">Not Specified</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Height (cm)</label>
+                                                <input type="number" required value={heightCm} onChange={e => setHeightCm(e.target.value)} placeholder="e.g. 175" className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Weight (kg)</label>
+                                                <input type="number" required value={weightKg} onChange={e => setWeightKg(e.target.value)} placeholder="e.g. 70" className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Goal</label>
+                                            <select value={goal} onChange={e => setGoal(e.target.value)} className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none">
+                                                <option value="Weight Loss">Weight Loss</option>
+                                                <option value="Muscle Gain">Muscle Gain</option>
+                                                <option value="Maintenance">Maintenance</option>
+                                            </select>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Specialization</label>
+                                            <input type="text" required value={specialization} onChange={e => setSpecialization(e.target.value)} placeholder="e.g. Sports Nutrition" className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-semibold tracking-wider uppercase text-slate-400 mb-1">Credentials (Optional)</label>
+                                            <input type="text" value={credentials} onChange={e => setCredentials(e.target.value)} placeholder="e.g. RD, CNS" className="w-full bg-[#090d16] border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:border-[#a5d391]/60 focus:outline-none" />
+                                        </div>
+                                    </>
+                                )}
+                                
+                                <button 
+                                    type="submit"
+                                    className="w-full py-3 mt-4 rounded-xl font-bold text-sm uppercase tracking-widest text-black bg-[#a5d391] hover:bg-white active:bg-slate-200 transition duration-200 cursor-pointer"
+                                >
+                                    Complete Setup
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => setOnboardingStep(1)}
+                                    className="text-xs text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-wider font-semibold cursor-pointer"
+                                >
+                                    Back
+                                </button>
+                            </form>
+                        )}
+
+                        <button 
+                            onClick={() => { 
+                                setRequiresRoleSelection(false); 
+                                setPendingGoogleCredential(null); 
+                                setOnboardingStep(1); 
+                            }}
+                            className="mt-6 text-xs text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-wider font-semibold cursor-pointer"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+            {/* END: Google Role Selection & Onboarding Modal */}
 
             {/* BEGIN: TopNavigation */}
             <header className="w-full px-6 lg:px-10 py-6 flex items-center justify-between z-10">

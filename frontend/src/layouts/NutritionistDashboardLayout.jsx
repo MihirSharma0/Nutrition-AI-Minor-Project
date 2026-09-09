@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import Starfield from '../components/Starfield';
 
-const UserDashboardLayout = () => {
+const NutritionistDashboardLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useContext(AuthContext);
@@ -17,15 +17,12 @@ const UserDashboardLayout = () => {
     const accentShadow = "shadow-[0_0_20px_rgba(165,211,145,0.25)]";
 
     const navItems = [
-        { name: "Overview", path: "/dashboard/user", icon: "dashboard" },
-        { name: "Progress Tracking", path: "/dashboard/user/progress", icon: "monitoring" },
-        { name: "Diet Plans", path: "/dashboard/user/diet-plans", icon: "restaurant_menu" },
-        { name: "Appointments", path: "/dashboard/user/appointments", icon: "calendar_month" },
-        { name: "Reports", path: "/dashboard/user/reports", icon: "lab_profile" },
-        { name: "AI Chat", path: "/dashboard/user/ai-chat", icon: "smart_toy" },
-        { name: "AI Diet Gen", path: "/dashboard/user/ai-diet", icon: "magic_button" },
-        { name: "AI Food Scan", path: "/dashboard/user/ai-image", icon: "center_focus_strong" },
-        { name: "Profile", path: "/dashboard/user/profile", icon: "person" }
+        { name: "Command Center", path: "/dashboard/nutritionist", icon: "monitoring" },
+        { name: "Profile", path: "/dashboard/nutritionist/profile", icon: "badge" },
+        { name: "User Roster", path: "/dashboard/nutritionist/clients", icon: "group" },
+        { name: "Protocol Builder", path: "/dashboard/nutritionist/builder", icon: "science" },
+        { name: "Schedule", path: "/dashboard/nutritionist/schedule", icon: "event" },
+        { name: "Clinical Reports", path: "/dashboard/nutritionist/reports", icon: "lab_profile" }
     ];
 
     const handleLogout = () => {
@@ -35,11 +32,11 @@ const UserDashboardLayout = () => {
 
     return (
         <div className="h-screen bg-[#080b12] text-white flex font-body-md selection:bg-[#a5d391]/30 selection:text-white relative overflow-hidden">
-            {/* Ambient Starfield Background */}
+            {/* Ambient Starfield Background matching Home Page */}
             <Starfield />
 
-            {/* Ambient Glows */}
-            <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#a5d391]/5 blur-[140px] rounded-full pointer-events-none z-0"></div>
+            {/* Ambient Lighting Glows */}
+            <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#a5d391]/5 blur-[140px] rounded-full pointer-events-none z-0"></div>
 
             {/* Sidebar (Desktop) */}
             <aside className="hidden lg:flex flex-col w-72 bg-[#080b12]/90 backdrop-blur-2xl border-r border-white/10 relative z-20">
@@ -47,17 +44,17 @@ const UserDashboardLayout = () => {
                     <div className={`absolute top-0 left-0 w-32 h-32 ${accentBg} blur-[80px] -translate-x-1/2 -translate-y-1/2 opacity-25 pointer-events-none`}></div>
                     <Link to="/" className="text-xl font-hero-display font-bold flex items-center gap-2 text-white relative z-10">
                         <span className={`material-symbols-outlined ${accentColor} text-2xl drop-shadow-[0_0_8px_rgba(165,211,145,0.4)]`}>nutrition</span>
-                        NutriMunch <span className="font-normal italic text-white/50">User</span>
+                        NutriMunch <span className="font-normal italic text-white/50">Nutritionist</span>
                     </Link>
                     <div className="mt-2 text-[10px] font-black text-[#a5d391] uppercase tracking-[0.2em] relative z-10 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#a5d391] animate-pulse"></span>
-                        Member Portal
+                        Clinical Console
                     </div>
                 </div>
 
                 <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
                     {navItems.map((item, idx) => {
-                        const isActive = location.pathname === item.path || (location.pathname === '/dashboard/user' && item.path === '/dashboard/user');
+                        const isActive = location.pathname === item.path || (location.pathname === '/dashboard/nutritionist' && item.path === '/dashboard/nutritionist');
                         return (
                             <Link 
                                 key={idx} 
@@ -74,7 +71,7 @@ const UserDashboardLayout = () => {
                 <div className="p-4 border-t border-white/10">
                     <button onClick={handleLogout} className="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors w-full text-left cursor-pointer">
                         <span className="material-symbols-outlined text-[20px]">logout</span>
-                        Disconnect
+                        Terminate Session
                     </button>
                 </div>
             </aside>
@@ -90,7 +87,7 @@ const UserDashboardLayout = () => {
                         >
                             <span className="material-symbols-outlined text-3xl">menu</span>
                         </button>
-                        <h2 className="text-xl font-bold font-hero-display tracking-wide hidden sm:block">NutriMunch <span className={`${accentColor} italic`}>Health Suite</span></h2>
+                        <h2 className="text-xl font-bold font-hero-display tracking-wide hidden sm:block">NutriMunch <span className={`${accentColor} italic`}>Nutritionist</span></h2>
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -99,12 +96,12 @@ const UserDashboardLayout = () => {
                             <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#a5d391] rounded-full border-2 border-[#080b12] shadow-[0_0_6px_rgba(165,211,145,0.8)]"></span>
                         </button>
                         
-                        <Link to="/dashboard/user/profile" className="flex items-center gap-3 pl-6 border-l border-white/10 cursor-pointer group">
+                        <Link to="/dashboard/nutritionist/profile" className="flex items-center gap-3 pl-6 border-l border-white/10 cursor-pointer group">
                             <div className="text-right hidden sm:block">
-                                <div className={`text-sm font-bold text-white group-hover:${accentColor} transition-colors`}>{user?.name || user?.username || 'Valued Member'}</div>
-                                <div className="text-[10px] text-[#a5d391] uppercase tracking-widest font-black">Pro Tier Active</div>
+                                <div className={`text-sm font-bold text-white group-hover:${accentColor} transition-colors`}>{user?.name || user?.username || 'Clinical Specialist'}</div>
+                                <div className="text-[10px] text-[#a5d391] uppercase tracking-widest font-black">Algorithmic Biologist</div>
                             </div>
-                            <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.username || 'User')}&background=a5d391&color=000`} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/20 group-hover:border-[#a5d391] transition-colors shadow-lg" />
+                            <img src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.username || 'Dietitian')}&background=a5d391&color=000`} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/20 group-hover:border-[#a5d391] transition-colors shadow-lg" />
                         </Link>
                     </div>
                 </header>
@@ -130,7 +127,7 @@ const UserDashboardLayout = () => {
                         </div>
                         <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
                             {navItems.map((item, idx) => {
-                                const isActive = location.pathname === item.path || (location.pathname === '/dashboard/user' && item.path === '/dashboard/user');
+                                const isActive = location.pathname === item.path || (location.pathname === '/dashboard/nutritionist' && item.path === '/dashboard/nutritionist');
                                 return (
                                     <Link 
                                         key={idx} 
@@ -151,4 +148,4 @@ const UserDashboardLayout = () => {
     );
 };
 
-export default UserDashboardLayout;
+export default NutritionistDashboardLayout;

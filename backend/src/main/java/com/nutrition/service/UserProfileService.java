@@ -1,8 +1,10 @@
 package com.nutrition.service;
 
 import com.nutrition.dto.UserProfileDto;
+import com.nutrition.entity.NutritionRule;
 import com.nutrition.entity.User;
 import com.nutrition.entity.UserProfile;
+import com.nutrition.repository.NutritionRuleRepository;
 import com.nutrition.repository.UserProfileRepository;
 import com.nutrition.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
+    private final NutritionRuleRepository nutritionRuleRepository;
 
     public UserProfileDto getProfile(Long userId) {
         UserProfile profile = userProfileRepository.findByUserId(userId)
@@ -54,11 +57,18 @@ public class UserProfileService {
         return userProfileRepository.save(profile);
     }
 
+    private double getRuleValue(String key, double defaultValue) {
+        return nutritionRuleRepository.findByRuleKey(key)
+                .map(NutritionRule::getRuleValue)
+                .orElse(defaultValue);
+    }
+
     private void recalculateNutritionTargets(UserProfile profile) {
         if (profile.getAge() == null || profile.getHeightCm() == null || profile.getWeightKg() == null || profile.getGender() == null) {
             return;
         }
 
+        // BMR Calculation (Mifflin-St Jeor)
         double bmr = 10 * profile.getWeightKg() + 6.25 * profile.getHeightCm() - 5 * profile.getAge();
         if ("Female".equalsIgnoreCase(profile.getGender())) {
             bmr -= 161;
@@ -67,31 +77,63 @@ public class UserProfileService {
         }
         profile.setBmr(bmr);
 
-        double multiplier = 1.2;
+        // Activity Multiplier
+        double multiplier = getRuleValue("multiplier_sedentary", 1.2);
         if (profile.getActivityLevel() != null) {
             switch (profile.getActivityLevel()) {
-                case "Lightly Active": multiplier = 1.375; break;
-                case "Moderately Active": multiplier = 1.55; break;
-                case "Very Active": multiplier = 1.725; break;
-                case "Highly Active-Athlete": multiplier = 1.9; break;
+                case "Lightly Active": multiplier = getRuleValue("multiplier_lightly_active", 1.375); break;
+                case "Moderately Active": multiplier = getRuleValue("multiplier_moderately_active", 1.55); break;
+                case "Very Active": multiplier = getRuleValue("multiplier_very_active", 1.725); break;
+                case "Highly Active-Athlete": multiplier = getRuleValue("multiplier_highly_active", 1.9); break;
             }
         }
         double tdee = bmr * multiplier;
         profile.setTdee(tdee);
 
+        // Calorie Goal Adjustments
         int calories = (int) tdee;
         if (profile.getGoal() != null) {
             switch (profile.getGoal()) {
-                case "Weight Loss": calories -= 500; break;
-                case "Muscle Gain": calories += 500; break;
-                case "Strength-Performance": calories += 300; break;
+                case "Weight Loss": calories += getRuleValue("goal_weight_loss_adj", -500); break;
+                case "Muscle Gain": calories += getRuleValue("goal_muscle_gain_adj", 500); break;
+                case "Strength-Performance": calories += getRuleValue("goal_strength_adj", 300); break;
+                case "Weight Maintenance": calories += getRuleValue("goal_maintenance_adj", 0); break;
             }
         }
         profile.setDailyCaloriesTarget(calories);
 
-        profile.setProteinTarget((int) ((calories * 0.30) / 4));
-        profile.setCarbsTarget((int) ((calories * 0.40) / 4));
-        profile.setFatsTarget((int) ((calories * 0.30) / 9));
+        // Macro Targets based on goals
+        double proteinPct = getRuleValue("macro_protein_pct_default", 0.30);
+        double carbsPct = getRuleValue("macro_carbs_pct_default", 0.40);
+        double fatsPct = getRuleValue("macro_fats_pct_default", 0.30);
+
+        if ("Muscle Gain".equals(profile.getGoal()) || "Strength-Performance".equals(profile.getGoal())) {
+            proteinPct = getRuleValue("macro_protein_pct_muscle", 0.35);
+            carbsPct = getRuleValue("macro_carbs_pct_muscle", 0.45);
+            fatsPct = getRuleValue("macro_fats_pct_muscle", 0.20);
+        }
+
+        profile.setProteinTarget((int) ((calories * proteinPct) / 4));
+        profile.setCarbsTarget((int) ((calories * carbsPct) / 4));
+        profile.setFatsTarget((int) ((calories * fatsPct) / 9));
+
+        // Water and Fiber
+        double waterMultiplier = getRuleValue("water_multiplier_liters_per_kg", 0.033);
+        profile.setDailyWaterTargetLiters(profile.getWeightKg() * waterMultiplier);
+        
+        double fiberMultiplier = getRuleValue("fiber_grams_per_1000_kcal", 14.0);
+        profile.setDailyFiberTargetG((int) ((calories / 1000.0) * fiberMultiplier));
+
+        // Basic Micronutrient RDAs (simplified estimation logic)
+        boolean isFemale = "Female".equalsIgnoreCase(profile.getGender());
+        profile.setIronTargetMg(isFemale && profile.getAge() <= 50 ? 18.0 : 8.0);
+        profile.setCalciumTargetMg(1000.0);
+        profile.setVitDTargetMcg(15.0);
+        profile.setVitB12TargetMcg(2.4);
+        profile.setVitCTargetMg(isFemale ? 75.0 : 90.0);
+        profile.setMagnesiumTargetMg(isFemale ? 310.0 : 400.0);
+        profile.setPotassiumTargetMg(3400.0);
+        profile.setZincTargetMg(isFemale ? 8.0 : 11.0);
     }
 
     private UserProfileDto mapToDto(UserProfile profile) {
@@ -121,6 +163,17 @@ public class UserProfileService {
         dto.setCarbsTarget(profile.getCarbsTarget());
         dto.setFatsTarget(profile.getFatsTarget());
         
+        dto.setDailyWaterTargetLiters(profile.getDailyWaterTargetLiters());
+        dto.setDailyFiberTargetG(profile.getDailyFiberTargetG());
+        dto.setIronTargetMg(profile.getIronTargetMg());
+        dto.setCalciumTargetMg(profile.getCalciumTargetMg());
+        dto.setVitDTargetMcg(profile.getVitDTargetMcg());
+        dto.setVitB12TargetMcg(profile.getVitB12TargetMcg());
+        dto.setVitCTargetMg(profile.getVitCTargetMg());
+        dto.setMagnesiumTargetMg(profile.getMagnesiumTargetMg());
+        dto.setPotassiumTargetMg(profile.getPotassiumTargetMg());
+        dto.setZincTargetMg(profile.getZincTargetMg());
+
         dto.setUpdatedAt(profile.getUpdatedAt());
         return dto;
     }

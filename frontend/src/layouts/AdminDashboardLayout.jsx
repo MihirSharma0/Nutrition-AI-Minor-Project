@@ -98,13 +98,13 @@ const AdminDashboardLayout = () => {
                             <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#a5d391] rounded-full border-2 border-[#080b12] shadow-[0_0_6px_rgba(165,211,145,0.8)]"></span>
                         </button>
                         
-                        <div className="flex items-center gap-3 pl-6 border-l border-white/10 cursor-pointer group">
+                        <Link to="/dashboard/admin/profile" className="flex items-center gap-3 pl-6 border-l border-white/10 cursor-pointer group">
                             <div className="text-right hidden sm:block">
                                 <div className={`text-sm font-bold text-white group-hover:${accentColor} transition-colors`}>System Admin</div>
                                 <div className="text-[10px] text-[#a5d391] uppercase tracking-widest font-black">God Mode</div>
                             </div>
                             <img src="https://ui-avatars.com/api/?name=Admin+User&background=a5d391&color=000" alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/20 group-hover:border-[#a5d391] transition-colors shadow-lg" />
-                        </div>
+                        </Link>
                     </div>
                 </header>
 

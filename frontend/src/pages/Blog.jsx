@@ -37,7 +37,8 @@ const Blog = () => {
     ];
 
     return (
-        <div className="relative bg-[#080b12] min-h-screen pt-32 pb-24 overflow-hidden flex flex-col font-body-md text-white selection:bg-primary-container selection:text-on-primary-container">
+        <div className="relative pt-32 pb-24 flex flex-col w-full">
+            {/* Ambient Starfield Background */}
             <Starfield />
             
             <div className="max-w-7xl mx-auto px-8 w-full relative z-10">

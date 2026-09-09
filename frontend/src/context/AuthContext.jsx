@@ -37,9 +37,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const googleLogin = async (credential) => {
+    const googleLogin = async (credential, role = null, profileData = {}) => {
         try {
-            const response = await api.post('/auth/google', { credential });
+            const payload = { credential, ...profileData };
+            if (role) {
+                payload.role = role;
+            }
+            const response = await api.post('/auth/google', payload);
             const { token, ...userData } = response.data;
             
             localStorage.setItem('token', token);
@@ -49,6 +53,9 @@ export const AuthProvider = ({ children }) => {
             setUser(userData);
             return { success: true, role: userData.role };
         } catch (error) {
+            if (error.response?.status === 428 || error.response?.data?.message === 'requires_role') {
+                return { success: false, requiresRole: true };
+            }
             return { 
                 success: false, 
                 message: error.response?.data?.message || 'Google Login failed' 

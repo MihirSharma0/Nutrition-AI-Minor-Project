@@ -4,6 +4,7 @@ import com.nutrition.entity.NutritionistProfile;
 import com.nutrition.entity.Role;
 import com.nutrition.entity.User;
 import com.nutrition.repository.NutritionistProfileRepository;
+import com.nutrition.repository.UserProfileRepository;
 import com.nutrition.repository.UserRepository;
 import com.nutrition.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final NutritionistProfileRepository nutritionistProfileRepository;
+    private final UserProfileRepository userProfileRepository;
     private final SystemSettingService systemSettingService;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
@@ -49,7 +51,9 @@ public class AdminController {
         String email = adminUser != null ? adminUser.getEmail() : activeAdminEmail;
         return ResponseEntity.ok(Map.of(
             "email", email,
-            "password", activeAdminPassword != null ? activeAdminPassword : "••••••••"
+            "password", activeAdminPassword != null ? activeAdminPassword : "••••••••",
+            "firstName", adminUser != null && adminUser.getFirstName() != null ? adminUser.getFirstName() : "System",
+            "lastName", adminUser != null && adminUser.getLastName() != null ? adminUser.getLastName() : "Admin"
         ));
     }
 
@@ -57,6 +61,8 @@ public class AdminController {
     public ResponseEntity<Map<String, String>> updateAdminCredentials(@RequestBody Map<String, String> body) {
         String newEmail = body.get("email");
         String newPassword = body.get("password");
+        String newFirstName = body.get("firstName");
+        String newLastName = body.get("lastName");
 
         if (newEmail == null || newEmail.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email cannot be empty"));
@@ -69,6 +75,8 @@ public class AdminController {
 
         if (adminUser != null) {
             adminUser.setEmail(newEmail);
+            if (newFirstName != null) adminUser.setFirstName(newFirstName);
+            if (newLastName != null) adminUser.setLastName(newLastName);
             if (newPassword != null && !newPassword.isBlank()) {
                 adminUser.setPasswordHash(passwordEncoder.encode(newPassword));
                 this.activeAdminPassword = newPassword;
@@ -123,6 +131,8 @@ public class AdminController {
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        nutritionistProfileRepository.findByUserId(id).ifPresent(nutritionistProfileRepository::delete);
+        userProfileRepository.findByUserId(id).ifPresent(userProfileRepository::delete);
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
@@ -169,16 +179,26 @@ public class AdminController {
 
         Map<String, Object> result = new HashMap<>();
         try {
-            List<Map<String, Object>> rows = jdbcTemplate.queryForList(query);
-            List<String> columns = new ArrayList<>();
-            if (!rows.isEmpty()) {
-                columns.addAll(rows.get(0).keySet());
-            }
+            String upperQuery = query.trim().toUpperCase();
+            if (upperQuery.startsWith("SELECT") || upperQuery.startsWith("SHOW") || upperQuery.startsWith("DESCRIBE")) {
+                List<Map<String, Object>> rows = jdbcTemplate.queryForList(query);
+                List<String> columns = new ArrayList<>();
+                if (!rows.isEmpty()) {
+                    columns.addAll(rows.get(0).keySet());
+                }
 
-            result.put("columns", columns);
-            result.put("rows", rows);
-            result.put("rowCount", rows.size());
-            result.put("success", true);
+                result.put("columns", columns);
+                result.put("rows", rows);
+                result.put("rowCount", rows.size());
+                result.put("success", true);
+            } else {
+                int affectedRows = jdbcTemplate.update(query);
+                result.put("columns", new ArrayList<>());
+                result.put("rows", new ArrayList<>());
+                result.put("rowCount", affectedRows);
+                result.put("success", true);
+                result.put("message", "Statement executed successfully. " + affectedRows + " rows affected.");
+            }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             result.put("success", false);

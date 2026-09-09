@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<?> authenticateWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
         try {
-            String jwt = authService.authenticateWithGoogle(request.getCredential());
+            String jwt = authService.authenticateWithGoogle(request);
             
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -60,6 +60,8 @@ public class AuthController {
                     user.getFirstName(),
                     user.getLastName(),
                     userDetails.getAuthorities().iterator().next().getAuthority()));
+        } catch (com.nutrition.exception.RoleRequiredException e) {
+            return ResponseEntity.status(428).body(new MessageResponse("requires_role"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

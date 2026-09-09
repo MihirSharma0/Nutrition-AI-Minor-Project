@@ -11,7 +11,10 @@ import com.nutrition.repository.NutritionistProfileRepository;
 import com.nutrition.repository.PasswordResetTokenRepository;
 import com.nutrition.repository.UserRepository;
 import com.nutrition.repository.VerificationTokenRepository;
+import com.nutrition.repository.UserProfileRepository;
+import com.nutrition.entity.UserProfile;
 import com.nutrition.security.JwtUtils;
+import com.nutrition.dto.GoogleLoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,6 +47,7 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final NutritionistProfileRepository nutritionistProfileRepository;
+    private final UserProfileRepository userProfileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final MailService mailService;
@@ -61,7 +65,9 @@ public class AuthService {
         return jwtUtils.generateJwtToken(authentication);
     }
 
-    public String authenticateWithGoogle(String accessToken) {
+    public String authenticateWithGoogle(GoogleLoginRequest request) {
+        String accessToken = request.getCredential();
+        String roleStr = request.getRole();
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
@@ -84,14 +90,44 @@ public class AuthService {
                 User user = userRepository.findByEmail(email).orElse(null);
                 
                 if (user == null) {
+                    if (roleStr == null || roleStr.isBlank()) {
+                        throw new com.nutrition.exception.RoleRequiredException("Role selection required for new Google login");
+                    }
+                    
+                    Role selectedRole;
+                    try {
+                        selectedRole = Role.valueOf(roleStr.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        selectedRole = Role.USER;
+                    }
+
                     user = new User();
                     user.setEmail(email);
                     user.setFirstName(firstName != null ? firstName : "User");
                     user.setLastName(lastName != null ? lastName : "");
                     user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
-                    user.setRole(Role.USER);
+                    user.setRole(selectedRole);
                     user.setVerified(true);
                     user = userRepository.save(user);
+
+                    if (selectedRole == Role.NUTRITIONIST) {
+                        NutritionistProfile profile = new NutritionistProfile();
+                        profile.setUser(user);
+                        profile.setCredentials(request.getCredentials() != null && !request.getCredentials().isBlank() ? request.getCredentials() : "N/A");
+                        profile.setSpecialization(request.getSpecialization() != null && !request.getSpecialization().isBlank() ? request.getSpecialization() : "General");
+                        nutritionistProfileRepository.save(profile);
+                    } else if (selectedRole == Role.USER) {
+                        UserProfile profile = new UserProfile();
+                        profile.setUser(user);
+                        profile.setAge(request.getAge());
+                        profile.setGender(request.getGender() != null ? request.getGender() : "Not Specified");
+                        profile.setHeightCm(request.getHeightCm() != null ? request.getHeightCm() : 170.0);
+                        profile.setWeightKg(request.getWeightKg() != null ? request.getWeightKg() : 70.0);
+                        profile.setGoal(request.getGoal() != null ? request.getGoal() : "Maintenance");
+                        profile.setActivityLevel("Moderate"); // default
+                        profile.setDietaryPreferences("None"); // default
+                        userProfileRepository.save(profile);
+                    }
                 }
 
                 CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -102,6 +138,8 @@ public class AuthService {
             } else {
                 throw new RuntimeException("Failed to retrieve email from Google.");
             }
+        } catch (com.nutrition.exception.RoleRequiredException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Google authentication failed: " + (e.getMessage() != null ? e.getMessage() : "Unknown error"));
         }

@@ -57,9 +57,7 @@ const Home = () => {
     }).join(', ') + ', 20px 12px 50px rgba(0,0,0,0.9)';
 
     return (
-        <div className="relative bg-[#080b12] min-h-screen pt-32 overflow-hidden flex flex-col font-body-md selection:bg-primary-container selection:text-on-primary-container">
-            <Starfield />
-            
+        <div className="relative pt-32 flex flex-col w-full">
             {/* Main Hero Container */}
             <div className="max-w-7xl mx-auto px-8 w-full flex-grow relative z-10 flex flex-col justify-between pt-10">
                 
