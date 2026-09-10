@@ -43,6 +43,23 @@ A comprehensive, full-stack AI-driven nutrition and diet management platform bui
 
 ---
 
+## ⚡ One-Click Cloud Development (GitHub Codespaces)
+
+This repository includes a pre-configured **Dev Container (`.devcontainer`)** for automated cloud development in GitHub Codespaces or VS Code Dev Containers:
+
+1. Click the **Code** button at the top of your GitHub repository.
+2. Select the **Codespaces** tab and click **Create codespace on main**.
+3. GitHub Codespaces will automatically:
+   - Configure **Java 17 (JDK)**, **Maven**, and **Node.js 20**.
+   - Spin up a background **MySQL 8.0** service (`nutrition_db` on port `3306`).
+   - Run `npm install` for frontend packages and resolve Maven dependencies.
+   - Forward ports **5173** (React App), **8080** (Spring Boot API), and **3306** (MySQL).
+4. Run the project in the Codespace terminal:
+   - **Backend**: `cd backend && ./mvnw spring-boot:run`
+   - **Frontend**: `cd frontend && npm run dev`
+
+---
+
 ## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
