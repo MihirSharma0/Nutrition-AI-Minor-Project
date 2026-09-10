@@ -18,7 +18,7 @@ A comprehensive, full-stack AI-driven nutrition and diet management platform bui
   - Glassmorphism design system built with Tailwind CSS.
   - Highly responsive for mobile, tablet, and desktop viewing.
 
----
+----
 
 ## 🛠️ Technology Stack
 
