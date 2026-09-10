@@ -34,7 +34,7 @@ const FAQ = () => {
     const [openIdx, setOpenIdx] = useState(null);
 
     return (
-        <section className="py-section-gap max-w-4xl mx-auto px-8 relative z-20">
+        <section className="py-16 sm:py-24 md:py-section-gap max-w-4xl mx-auto px-4 sm:px-8 relative z-20">
             <div className="text-center mb-16">
                 <span className="text-[#a5d391] font-bold tracking-widest uppercase text-sm mb-4 block">Knowledge Base</span>
                 <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">Frequently Asked Questions</h2>

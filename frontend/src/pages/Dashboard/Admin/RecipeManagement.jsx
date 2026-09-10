@@ -83,13 +83,13 @@ const RecipeManagement = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {recipes.map(recipe => (
-                            <div key={recipe.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-start">
+                            <div key={recipe.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col sm:flex-row justify-between items-start gap-2">
                                 <div>
                                     <h3 className="font-bold text-lg text-accent-green">{recipe.title}</h3>
                                     <p className="text-white/60 text-sm mt-1">{recipe.description}</p>
                                     <p className="text-white/40 text-xs mt-2">{recipe.calories} kcal • {recipe.prepTimeMinutes} mins</p>
                                 </div>
-                                <button onClick={() => deleteRecipe(recipe.id)} className="text-red-400 hover:text-red-300 ml-4">
+                                <button onClick={() => deleteRecipe(recipe.id)} className="text-red-400 hover:text-red-300 sm:ml-4">
                                     Delete
                                 </button>
                             </div>

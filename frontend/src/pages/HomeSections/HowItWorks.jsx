@@ -29,7 +29,7 @@ const HowItWorks = () => {
     ];
 
     return (
-        <section className="pt-12 pb-24 max-w-7xl mx-auto px-8 relative z-20">
+        <section className="pt-12 pb-16 sm:pb-24 max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
             <div className="text-center mb-20">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">The Process</span>
                 <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">How It Works</h2>

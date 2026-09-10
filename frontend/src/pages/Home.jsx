@@ -36,7 +36,7 @@ const FlipFeatureCard = ({ children, backContent, wrapperClass, frontClass, back
                 </div>
 
                 {/* Back */}
-                <div className={`absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-center items-center text-center p-10 md:p-14 rounded-[2.5rem] group-hover:shadow-2xl transition-shadow duration-500 ${backClass}`}>
+                <div className={`absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-center items-center text-center p-6 sm:p-10 md:p-14 rounded-[2.5rem] group-hover:shadow-2xl transition-shadow duration-500 ${backClass}`}>
                     {backContent}
                 </div>
 
@@ -59,12 +59,12 @@ const Home = () => {
     return (
         <div className="relative pt-32 flex flex-col w-full">
             {/* Main Hero Container */}
-            <div className="max-w-7xl mx-auto px-8 w-full flex-grow relative z-10 flex flex-col justify-between pt-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 w-full flex-grow relative z-10 flex flex-col justify-between pt-10">
                 
                 {/* Top Section - Huge Typography */}
                 <div className="relative mb-12 md:mb-16">
-                    <h1 
-                        className="font-hero-display text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none font-bold text-white tracking-tighter relative z-20" 
+                    <h1
+                        className="font-hero-display text-[3rem] sm:text-[4.5rem] md:text-[10rem] lg:text-[12rem] leading-none font-bold text-white tracking-tighter relative z-20"
                         style={{ textShadow: blockShadow }}
                     >
                         Nutrition
@@ -72,7 +72,7 @@ const Home = () => {
                 </div>
 
                 {/* Bottom Info Grid */}
-                <div className="grid grid-cols-12 gap-8 md:gap-12 items-end mb-36 md:mb-48">
+                <div className="grid grid-cols-12 gap-6 sm:gap-8 md:gap-12 items-end mb-36 md:mb-48">
                     
                     {/* Left: Avatars */}
                     <div className="col-span-12 md:col-span-3 space-y-4">
@@ -125,7 +125,7 @@ const Home = () => {
             {/* Below sections restored like before */}
             <div className="relative bg-background w-full z-20">
                 {/* Hero Image Pivot Section */}
-                <section className="max-w-container-max mx-auto px-edge-margin -mt-36 relative z-20">
+                <section className="max-w-container-max mx-auto px-4 sm:px-edge-margin -mt-36 relative z-20">
                     <div className="relative rounded-xl overflow-hidden shadow-[0_80px_120px_-20px_rgba(15,23,42,0.3)] aspect-[21/9] border border-white/10">
                         <img className="w-full h-full object-cover scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUQW1ayK2QptnJC4qRpFZJQfK25SrdzXBlBBKDdfgFsY3fbK5Q9MBP4F2v2a6cli_nEXhYxZdynfefZ9y6wd9ardu7fb6hI4n4NzwrwE4B--Y4wqSMdeuOKZZfTXGlE55PD6O95ZslKGxZFe9jEyC5O4jQKnL_jnYppX1ixe10PJAE_5uvWDiX9c_vA5cz5JtDILmRAtwTwIPmdRfsDOx7e2W8rsEiFw4gzv8YSmBzQ-2grz1UCn8l" alt="Dashboard"/>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -151,7 +151,7 @@ const Home = () => {
                 </section>
 
                 {/* Bento Grid Insights */}
-                <section className="py-section-gap max-w-7xl mx-auto px-8 relative z-20">
+                <section className="py-16 sm:py-24 md:py-section-gap max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                         
                         {/* Card 1: Adaptive Intelligence */}
@@ -175,7 +175,7 @@ const Home = () => {
                                     <span className="w-8 h-px bg-[#4a6741] group-hover:w-12 transition-all duration-500"></span>
                                     <span className="text-[10px] tracking-widest text-[#4a6741] font-bold uppercase">Adaptive Intelligence</span>
                                 </div>
-                                <h3 className="font-hero-display text-[3.5rem] leading-[1.05] text-[#111827] tracking-tight font-bold pr-8">
+                                <h3 className="font-hero-display text-[2rem] sm:text-[2.75rem] md:text-[3.5rem] leading-[1.05] text-[#111827] tracking-tight font-bold pr-0 sm:pr-8">
                                     Autonomous dietary <span className="text-[#4a6741] italic">calibration</span><br/>that evolves with your heartbeat.
                                 </h3>
                             </div>

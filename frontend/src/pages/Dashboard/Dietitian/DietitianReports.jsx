@@ -67,13 +67,13 @@ const DietitianReports = () => {
                     </button>
                 </div>
                 
-                <div className="h-[300px] w-full">
+                <div className="h-[220px] sm:h-[260px] lg:h-[300px] w-full">
                     <Line data={data} options={options} />
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 shadow-xl">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl">
                     <h3 className="font-bold mb-6 text-[#a5d391] font-hero-display text-lg">Generate Cohort Report</h3>
                     <form className="space-y-4">
                         <div>
@@ -87,7 +87,7 @@ const DietitianReports = () => {
                         </div>
                         <div>
                             <label className="text-xs font-bold uppercase tracking-widest text-[#a5d391] mb-2 block">Metrics to Include</label>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <label className="flex items-center gap-2 cursor-pointer bg-[#080b12]/80 p-3 rounded-xl border border-white/10 hover:border-[#a5d391]/30 transition-colors">
                                     <input type="checkbox" defaultChecked className="accent-[#a5d391]" />
                                     <span className="text-xs font-bold text-white/80">Avg Adherence</span>
@@ -113,7 +113,7 @@ const DietitianReports = () => {
                     </form>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 shadow-xl">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl">
                     <h3 className="font-bold mb-6 text-[#a5d391] font-hero-display text-lg">System Insights</h3>
                     <div className="space-y-6">
                         <div className="border-l-2 border-[#a5d391] pl-4">

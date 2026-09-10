@@ -120,12 +120,12 @@ const Profile = () => {
                 </div>
             )}
 
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 mb-8 shadow-xl">
-                <div className="flex flex-col md:flex-row items-center gap-8 mb-8 pb-8 border-b border-white/10">
-                    <img 
-                        src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.username || 'User')}&background=a5d391&color=000`} 
-                        alt="Profile" 
-                        className="w-32 h-32 rounded-full object-cover border-4 border-[#080b12] outline outline-2 outline-[#a5d391]/50 shadow-2xl"
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 sm:p-8 mb-8 shadow-xl">
+                <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 mb-8 pb-8 border-b border-white/10">
+                    <img
+                        src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || user?.username || 'User')}&background=a5d391&color=000`}
+                        alt="Profile"
+                        className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-[#080b12] outline outline-2 outline-[#a5d391]/50 shadow-2xl shrink-0"
                     />
                     <div className="text-center md:text-left">
                         <h2 className="text-2xl font-bold mb-1 font-hero-display">{user?.firstName} {user?.lastName}</h2>
@@ -221,7 +221,7 @@ const Profile = () => {
             </div>
 
             {targets && (
-                <div className="bg-white/5 backdrop-blur-xl border border-[#38bdf8]/30 rounded-[2.5rem] p-8 mb-8 shadow-xl relative overflow-hidden">
+                <div className="bg-white/5 backdrop-blur-xl border border-[#38bdf8]/30 rounded-[2.5rem] p-6 sm:p-8 mb-8 shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-10 text-[#38bdf8]">
                         <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.8L18.2 19H5.8L12 5.8z"/></svg>
                     </div>
@@ -250,9 +250,9 @@ const Profile = () => {
                 </div>
             )}
 
-            <div className="flex justify-end gap-4 pb-8">
-                <button className="px-6 py-3 rounded-2xl font-bold text-white/50 hover:text-white transition-colors cursor-pointer">Cancel</button>
-                <button onClick={handleSave} disabled={saving} className="bg-[#a5d391] text-black px-8 py-3.5 rounded-2xl font-bold hover:bg-white transition-all shadow-[0_0_20px_rgba(165,211,145,0.3)] cursor-pointer disabled:opacity-50">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pb-8">
+                <button className="w-full sm:w-auto px-6 py-3 rounded-2xl font-bold text-white/50 hover:text-white transition-colors cursor-pointer">Cancel</button>
+                <button onClick={handleSave} disabled={saving} className="w-full sm:w-auto bg-[#a5d391] text-black px-8 py-3.5 rounded-2xl font-bold hover:bg-white transition-all shadow-[0_0_20px_rgba(165,211,145,0.3)] cursor-pointer disabled:opacity-50">
                     {saving ? 'Calculating...' : 'Save Parameters'}
                 </button>
             </div>

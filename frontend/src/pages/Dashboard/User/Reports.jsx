@@ -8,7 +8,7 @@ const Reports = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 {/* Generation Block */}
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 shadow-xl">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl">
                     <h3 className="font-bold mb-2 font-hero-display text-lg">Compile Custom Report</h3>
                     <p className="text-white/50 text-sm mb-6">Select the parameters for your generated health summary. Useful for sharing with primary care physicians.</p>
                     
@@ -56,30 +56,30 @@ const Reports = () => {
                     <h2 className="text-lg font-bold font-hero-display text-white/70 mb-4">Report Archive</h2>
                     <div className="space-y-4">
                         
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:border-[#a5d391]/30 transition-colors group cursor-pointer shadow-lg">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20 text-red-500">
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-[#a5d391]/30 transition-colors group cursor-pointer shadow-lg">
+                            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                <div className="w-10 h-10 shrink-0 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20 text-red-500">
                                     <span className="material-symbols-outlined">picture_as_pdf</span>
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <div className="font-bold text-sm font-hero-display">Q3 Metabolic Summary</div>
                                     <div className="text-xs text-white/40">Generated Oct 01, 2026 • 2.4 MB</div>
                                 </div>
                             </div>
-                            <span className="material-symbols-outlined text-white/30 group-hover:text-[#a5d391] transition-colors">download</span>
+                            <span className="material-symbols-outlined shrink-0 text-white/30 group-hover:text-[#a5d391] transition-colors">download</span>
                         </div>
                         
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:border-[#a5d391]/30 transition-colors group cursor-pointer shadow-lg">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20 text-red-500">
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-[#a5d391]/30 transition-colors group cursor-pointer shadow-lg">
+                            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                <div className="w-10 h-10 shrink-0 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20 text-red-500">
                                     <span className="material-symbols-outlined">picture_as_pdf</span>
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <div className="font-bold text-sm font-hero-display">Initial Baseline Assessment</div>
                                     <div className="text-xs text-white/40">Generated Sep 28, 2026 • 5.1 MB</div>
                                 </div>
                             </div>
-                            <span className="material-symbols-outlined text-white/30 group-hover:text-[#a5d391] transition-colors">download</span>
+                            <span className="material-symbols-outlined shrink-0 text-white/30 group-hover:text-[#a5d391] transition-colors">download</span>
                         </div>
 
                     </div>

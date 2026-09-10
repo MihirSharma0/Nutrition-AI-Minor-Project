@@ -23,26 +23,26 @@ const BeforeAfterGallery = () => {
     const [activeIdx, setActiveIdx] = useState(0);
 
     return (
-        <section className="py-24 max-w-7xl mx-auto px-8 relative z-20">
-            <div className="text-center mb-16">
+        <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
+            <div className="text-center mb-10 sm:mb-16">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Visual Proof</span>
-                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">Before & After Gallery</h2>
+                <h2 className="font-hero-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">Before & After Gallery</h2>
             </div>
-            
-            <div className="bg-white/5 border border-white/10 rounded-[3rem] p-8 md:p-12 overflow-hidden">
-                <div className="flex flex-col lg:flex-row gap-12 items-center">
+
+            <div className="bg-white/5 border border-white/10 rounded-[3rem] p-6 sm:p-8 md:p-12 overflow-hidden">
+                <div className="flex flex-col lg:flex-row gap-8 sm:gap-12 items-center">
                     {/* Image Area */}
                     <div className="w-full lg:w-1/2 relative rounded-[2rem] overflow-hidden aspect-square border-2 border-white/10 group">
-                        <img 
-                            src={transformations[activeIdx].image} 
-                            alt="Transformation" 
-                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
+                        <img
+                            src={transformations[activeIdx].image}
+                            alt="Transformation"
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                         />
-                        <div className="absolute top-4 left-4 right-4 flex justify-between">
-                            <div className="bg-black/60 backdrop-blur-md text-white/60 px-4 py-2 rounded-xl border border-white/10 text-sm font-bold uppercase tracking-wider">
+                        <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 flex flex-col sm:flex-row justify-between gap-2">
+                            <div className="bg-black/60 backdrop-blur-md text-white/60 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-white/10 text-xs sm:text-sm font-bold uppercase tracking-wider">
                                 Before: <span className="text-white">{transformations[activeIdx].before}</span>
                             </div>
-                            <div className="bg-primary/20 backdrop-blur-md text-primary px-4 py-2 rounded-xl border border-primary/30 text-sm font-bold uppercase tracking-wider">
+                            <div className="bg-primary/20 backdrop-blur-md text-primary px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-primary/30 text-xs sm:text-sm font-bold uppercase tracking-wider sm:text-right">
                                 After: <span className="text-white">{transformations[activeIdx].after}</span>
                             </div>
                         </div>
@@ -54,7 +54,7 @@ const BeforeAfterGallery = () => {
                             <span className="material-symbols-outlined text-primary">timer</span>
                             <span className="text-primary font-bold uppercase tracking-widest">{transformations[activeIdx].timeline}</span>
                         </div>
-                        <h3 className="text-4xl font-bold text-white mb-6">{transformations[activeIdx].name}</h3>
+                        <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">{transformations[activeIdx].name}</h3>
                         <p className="text-white/70 text-lg leading-relaxed italic border-l-2 border-primary/50 pl-6 mb-10">
                             "{transformations[activeIdx].story}"
                         </p>

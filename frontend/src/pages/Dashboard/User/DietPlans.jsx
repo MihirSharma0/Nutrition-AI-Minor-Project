@@ -29,7 +29,7 @@ const DietPlans = () => {
                                     <div className="font-bold">Kinetic Synthesis Bowl</div>
                                     <div className="text-xs text-white/50">Oats, Whey Isolate, Mixed Berries, Chia Seeds</div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-center md:text-right">
                                     <div className="font-bold text-lg font-hero-display">450 <span className="text-xs text-white/50">kcal</span></div>
                                     <div className="text-xs text-white/40">35P / 45C / 12F</div>
                                 </div>
@@ -43,7 +43,7 @@ const DietPlans = () => {
                                     <div className="font-bold">Neural Broth v4.2</div>
                                     <div className="text-xs text-white/50">Chicken Bone Broth, Quinoa, Bok Choy</div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-center md:text-right">
                                     <div className="font-bold text-lg font-hero-display">650 <span className="text-xs text-white/50">kcal</span></div>
                                     <div className="text-xs text-white/40">55P / 60C / 20F</div>
                                 </div>
@@ -57,7 +57,7 @@ const DietPlans = () => {
                                     <div className="font-bold">REM Cycle Extract</div>
                                     <div className="text-xs text-white/50">Wild Salmon, Sweet Potato, Asparagus</div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-center md:text-right">
                                     <div className="font-bold text-lg font-hero-display">700 <span className="text-xs text-white/50">kcal</span></div>
                                     <div className="text-xs text-white/40">50P / 55C / 28F</div>
                                 </div>

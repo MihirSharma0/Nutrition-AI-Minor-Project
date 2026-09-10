@@ -23,7 +23,7 @@ const ClientTestimonials = () => {
     ];
 
     return (
-        <section className="py-section-gap max-w-7xl mx-auto px-8 relative z-20">
+        <section className="py-16 sm:py-24 md:py-section-gap max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
             <div className="text-center mb-16">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Real Results</span>
                 <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-on-background mb-6">User Transformations</h2>

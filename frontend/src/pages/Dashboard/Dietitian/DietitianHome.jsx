@@ -15,7 +15,7 @@ const DietitianHome = () => {
             </div>
             
             {/* Top Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12">
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 flex flex-col justify-between hover:border-[#a5d391]/30 transition-all duration-300 shadow-xl">
                     <div className="flex justify-between items-start mb-4">
                         <div className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Active Roster</div>
@@ -72,7 +72,7 @@ const DietitianHome = () => {
                     <div className="space-y-4">
                         <div className="bg-[#080b12]/80 border border-red-500/30 rounded-2xl p-5 relative overflow-hidden">
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
-                            <div className="flex justify-between items-start mb-2">
+                            <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                                 <div>
                                     <span className="text-xs font-bold bg-red-500/20 text-red-400 px-2.5 py-1 rounded-md uppercase tracking-widest">CGM Spike Detected</span>
                                 </div>
@@ -89,7 +89,7 @@ const DietitianHome = () => {
 
                         <div className="bg-[#080b12]/80 border border-yellow-500/30 rounded-2xl p-5 relative overflow-hidden">
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500"></div>
-                            <div className="flex justify-between items-start mb-2">
+                            <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                                 <div>
                                     <span className="text-xs font-bold bg-yellow-500/20 text-yellow-500 px-2.5 py-1 rounded-md uppercase tracking-widest">Adherence Drop</span>
                                 </div>
@@ -108,7 +108,7 @@ const DietitianHome = () => {
                 
                 {/* Upcoming Schedule */}
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 lg:p-8 shadow-xl">
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
                         <h2 className="text-lg font-bold font-hero-display flex items-center gap-2">
                             <span className="material-symbols-outlined text-[#a5d391]">videocam</span>
                             Today's Consultations
@@ -122,15 +122,15 @@ const DietitianHome = () => {
                             { time: "02:00 PM", name: "Sarah Jenkins", type: "Protocol Adjustment", status: "next" },
                             { time: "04:30 PM", name: "David M.", type: "Emergency Override Consult", status: "pending" },
                         ].map((consult, idx) => (
-                            <div key={idx} className={`flex items-center gap-4 p-4 rounded-2xl border ${consult.status === 'next' ? 'bg-[#a5d391]/10 border-[#a5d391]/30' : 'bg-[#080b12]/80 border-white/10'}`}>
-                                <div className="text-center min-w-[70px]">
+                            <div key={idx} className={`flex items-center gap-3 sm:gap-4 p-4 rounded-2xl border ${consult.status === 'next' ? 'bg-[#a5d391]/10 border-[#a5d391]/30' : 'bg-[#080b12]/80 border-white/10'}`}>
+                                <div className="text-center min-w-[56px] sm:min-w-[70px]">
                                     <div className="font-bold text-sm">{consult.time.split(' ')[0]}</div>
                                     <div className="text-[10px] text-white/40 uppercase tracking-widest">{consult.time.split(' ')[1]}</div>
                                 </div>
                                 <div className="w-px h-8 bg-white/10"></div>
-                                <div className="flex-grow">
-                                    <div className="font-bold text-sm">{consult.name}</div>
-                                    <div className="text-xs text-white/50">{consult.type}</div>
+                                <div className="flex-grow min-w-0">
+                                    <div className="font-bold text-sm truncate">{consult.name}</div>
+                                    <div className="text-xs text-white/50 truncate">{consult.type}</div>
                                 </div>
                                 <div>
                                     {consult.status === 'completed' && <span className="material-symbols-outlined text-[#a5d391] text-sm">check_circle</span>}

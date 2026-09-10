@@ -229,7 +229,7 @@ const Pricing = () => {
 
     return (
         <div className="relative pt-32 pb-24 flex flex-col w-full">
-            <div className="max-w-7xl mx-auto px-8 w-full relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 w-full relative z-10">
                 {/* Header */}
                 <motion.div 
                     initial={{ opacity: 0, y: -30 }}
@@ -247,7 +247,7 @@ const Pricing = () => {
                     </h1>
                     
                     {/* Toggle Switch */}
-                    <div className="flex items-center justify-center gap-6 mt-12">
+                    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-12">
                         <span className={`font-bold tracking-widest uppercase text-sm transition-colors ${!isYearly ? 'text-white' : 'text-white/40'}`}>Monthly</span>
                         
                         <div 
@@ -276,7 +276,7 @@ const Pricing = () => {
                 </motion.div>
 
                 {/* Pricing Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 items-stretch max-w-6xl mx-auto pb-20 mt-12 md:mt-16 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 lg:gap-16 items-stretch max-w-6xl mx-auto pb-20 mt-12 md:mt-16 px-4">
                     {plans.map((plan, index) => (
                         <div key={index} className={`perspective-[1500px] w-full h-full flex transition-transform duration-500 ${plan.isFeatured ? 'md:scale-110 z-10' : 'z-0'}`}>
                             <PricingCard plan={plan} isYearly={isYearly} index={index} />

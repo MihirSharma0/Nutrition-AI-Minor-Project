@@ -2,8 +2,8 @@ import React from 'react';
 
 const AINutritionCoach = () => {
     return (
-        <section className="py-section-gap relative z-20 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <section className="py-16 sm:py-24 md:py-section-gap relative z-20 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
                 <div className="order-2 lg:order-1 relative">
                     <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full"></div>
                     <img 

@@ -14,42 +14,44 @@ const FeatureComparisonTable = () => {
     ];
 
     return (
-        <section className="py-24 max-w-6xl mx-auto px-8 relative z-20">
-            <div className="text-center mb-16">
+        <section className="py-16 sm:py-24 max-w-6xl mx-auto px-4 sm:px-8 relative z-20">
+            <div className="text-center mb-10 sm:mb-16">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Feature Matrix</span>
-                <h2 className="font-hero-display text-4xl font-bold text-white mb-6">Compare Protocols</h2>
+                <h2 className="font-hero-display text-3xl sm:text-4xl font-bold text-white mb-6">Compare Protocols</h2>
             </div>
-            
-            <div className="bg-[#080b12] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
-                    <thead>
-                        <tr className="border-b border-white/10 bg-white/5">
-                            <th className="p-6 font-bold text-white/50 uppercase tracking-widest text-sm w-2/5">Capabilities</th>
-                            <th className="p-6 font-bold text-center text-white text-lg w-1/5">Starter</th>
-                            <th className="p-6 font-bold text-center text-primary text-lg w-1/5 relative">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
-                                Pro
-                            </th>
-                            <th className="p-6 font-bold text-center text-[#38bdf8] text-lg w-1/5">Enterprise</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                        {features.map((feature, idx) => (
-                            <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                                <td className="p-6 text-white/80 font-medium">{feature.name}</td>
-                                <td className="p-6 text-center">
-                                    {feature.starter ? <span className="material-symbols-outlined text-white/60">check</span> : <span className="material-symbols-outlined text-white/10">remove</span>}
-                                </td>
-                                <td className="p-6 text-center bg-primary/5">
-                                    {feature.pro ? <span className="material-symbols-outlined text-primary">check</span> : <span className="material-symbols-outlined text-white/10">remove</span>}
-                                </td>
-                                <td className="p-6 text-center">
-                                    {feature.enterprise ? <span className="material-symbols-outlined text-[#38bdf8]">check</span> : <span className="material-symbols-outlined text-white/10">remove</span>}
-                                </td>
+
+            <div className="bg-[#080b12] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden">
+                <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr className="border-b border-white/10 bg-white/5">
+                                <th className="p-6 font-bold text-white/50 uppercase tracking-widest text-sm w-2/5 whitespace-nowrap">Capabilities</th>
+                                <th className="p-6 font-bold text-center text-white text-lg w-1/5">Starter</th>
+                                <th className="p-6 font-bold text-center text-primary text-lg w-1/5 relative">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+                                    Pro
+                                </th>
+                                <th className="p-6 font-bold text-center text-[#38bdf8] text-lg w-1/5">Enterprise</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {features.map((feature, idx) => (
+                                <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                                    <td className="p-6 text-white/80 font-medium whitespace-nowrap">{feature.name}</td>
+                                    <td className="p-6 text-center">
+                                        {feature.starter ? <span className="material-symbols-outlined text-white/60">check</span> : <span className="material-symbols-outlined text-white/10">remove</span>}
+                                    </td>
+                                    <td className="p-6 text-center bg-primary/5">
+                                        {feature.pro ? <span className="material-symbols-outlined text-primary">check</span> : <span className="material-symbols-outlined text-white/10">remove</span>}
+                                    </td>
+                                    <td className="p-6 text-center">
+                                        {feature.enterprise ? <span className="material-symbols-outlined text-[#38bdf8]">check</span> : <span className="material-symbols-outlined text-white/10">remove</span>}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     );

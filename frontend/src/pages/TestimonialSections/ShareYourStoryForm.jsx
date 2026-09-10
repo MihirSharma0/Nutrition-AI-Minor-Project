@@ -2,14 +2,14 @@ import React from 'react';
 
 const ShareYourStoryForm = () => {
     return (
-        <section className="py-24 max-w-4xl mx-auto px-8 relative z-20">
-            <div className="bg-gradient-to-br from-primary/10 to-transparent border border-white/10 rounded-[3rem] p-12 md:p-16 text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                    <span className="material-symbols-outlined text-[10rem] text-primary">rate_review</span>
+        <section className="py-16 sm:py-24 max-w-4xl mx-auto px-4 sm:px-8 relative z-20">
+            <div className="bg-gradient-to-br from-primary/10 to-transparent border border-white/10 rounded-[3rem] p-6 sm:p-10 md:p-16 text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 sm:p-12 opacity-5 pointer-events-none">
+                    <span className="material-symbols-outlined text-6xl sm:text-8xl md:text-[10rem] text-primary">rate_review</span>
                 </div>
-                
-                <h2 className="font-hero-display text-4xl font-bold text-white mb-4 relative z-10">Share Your Story</h2>
-                <p className="text-white/60 mb-12 max-w-2xl mx-auto relative z-10">
+
+                <h2 className="font-hero-display text-3xl sm:text-4xl font-bold text-white mb-4 relative z-10">Share Your Story</h2>
+                <p className="text-white/60 mb-8 sm:mb-12 max-w-2xl mx-auto relative z-10">
                     Have you completed your initial 12-week protocol? We want to hear how the Aether Convergence has impacted your daily life and biological markers.
                 </p>
 

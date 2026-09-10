@@ -131,7 +131,7 @@ const Register = () => {
                 </div>
 
                 {/* Registration Card */}
-                <div className="w-full max-w-[560px] rounded-[2.5rem] bg-[#0d121c]/80 border border-white/10 p-8 sm:p-10 relative backdrop-blur-2xl shadow-2xl">
+                <div className="w-full max-w-[560px] rounded-[2.5rem] bg-[#0d121c]/80 border border-white/10 p-6 sm:p-10 relative backdrop-blur-2xl shadow-2xl">
                     
                     {/* Hidden File Input */}
                     <input 
@@ -143,11 +143,11 @@ const Register = () => {
                     />
 
                     {/* Role / Stepper Selection Indicator */}
-                    <div className="flex items-center justify-center gap-3 mb-8">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'USER' })}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                                 formData.role === 'USER'
                                 ? 'bg-[#a5d391] text-black shadow-[0_0_15px_rgba(165,211,145,0.4)] ring-4 ring-[#a5d391]/20'
                                 : 'bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:text-white'
@@ -156,13 +156,13 @@ const Register = () => {
                             <User className="w-3.5 h-3.5" />
                             <span>User Account</span>
                         </button>
-                        
-                        <div className="w-8 h-[2px] bg-slate-800"></div>
+
+                        <div className="hidden sm:block w-8 h-[2px] bg-slate-800"></div>
 
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'NUTRITIONIST' })}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                                 formData.role === 'NUTRITIONIST'
                                 ? 'bg-[#a5d391] text-black shadow-[0_0_15px_rgba(165,211,145,0.4)] ring-4 ring-[#a5d391]/20'
                                 : 'bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:text-white'

@@ -11,8 +11,8 @@ const BenefitsPersonalizedNutrition = () => {
     ];
 
     return (
-        <section className="py-section-gap relative z-20">
-            <div className="max-w-7xl mx-auto px-8">
+        <section className="py-16 sm:py-24 md:py-section-gap relative z-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8">
                 <div className="text-center mb-16">
                     <span className="text-[#a5d391] font-bold tracking-widest uppercase text-sm mb-4 block">The Science of You</span>
                     <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">Benefits of Personalized Nutrition</h2>

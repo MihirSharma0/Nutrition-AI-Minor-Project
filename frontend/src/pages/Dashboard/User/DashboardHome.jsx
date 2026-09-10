@@ -15,7 +15,7 @@ const DashboardHome = () => {
             </div>
             
             {/* Top Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 flex items-center justify-between hover:border-[#a5d391]/30 transition-all duration-300 shadow-xl">
                     <div>
                         <div className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">Today's Macros</div>
@@ -50,7 +50,7 @@ const DashboardHome = () => {
 
             {/* AI Insights & Alerts */}
             <h2 className="text-xl font-bold font-hero-display mb-6">Generative Insights</h2>
-            <div className="bg-gradient-to-r from-[#a5d391]/10 via-white/5 to-transparent backdrop-blur-xl border border-[#a5d391]/30 rounded-[2.5rem] p-8 mb-12 flex gap-4 items-start shadow-xl relative overflow-hidden">
+            <div className="bg-gradient-to-r from-[#a5d391]/10 via-white/5 to-transparent backdrop-blur-xl border border-[#a5d391]/30 rounded-[2.5rem] p-6 sm:p-8 mb-12 flex gap-4 items-start shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#a5d391]/10 blur-[90px] rounded-full pointer-events-none"></div>
                 <span className="material-symbols-outlined text-[#a5d391] text-3xl mt-1 animate-pulse drop-shadow-[0_0_8px_rgba(165,211,145,0.4)]">memory</span>
                 <div className="relative z-10">
@@ -66,7 +66,7 @@ const DashboardHome = () => {
             
             {/* Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 shadow-xl">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl">
                     <h3 className="font-bold text-lg mb-6 font-hero-display">Today's Protocol</h3>
                     <div className="space-y-4">
                         <div className="flex items-center gap-4 p-4 bg-[#080b12]/80 border border-white/10 rounded-2xl">
@@ -88,7 +88,7 @@ const DashboardHome = () => {
                     </div>
                 </div>
                 
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 shadow-xl">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl">
                     <h3 className="font-bold text-lg mb-6 font-hero-display">Biometric Sync Status</h3>
                     <ul className="space-y-4">
                         <li className="flex justify-between items-center pb-4 border-b border-white/10">

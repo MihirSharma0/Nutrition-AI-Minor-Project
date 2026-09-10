@@ -10,12 +10,12 @@ const DietPlanBuilder = () => {
                 {/* Protocol Engine Override */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 lg:p-8 shadow-xl">
-                        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-6">
+                        <div className="flex flex-wrap justify-between items-center gap-3 mb-6 border-b border-white/10 pb-6">
                             <div>
                                 <h2 className="text-xl font-bold mb-1 font-hero-display">Target User: David Miller (ID: 442)</h2>
                                 <p className="text-white/50 text-sm">Status: Critical • Base Protocol: Diabetes Management</p>
                             </div>
-                            <span className="bg-[#a5d391]/20 text-[#a5d391] border border-[#a5d391]/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                            <span className="bg-[#a5d391]/20 text-[#a5d391] border border-[#a5d391]/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full whitespace-nowrap">
                                 Manual Override Active
                             </span>
                         </div>
@@ -24,7 +24,7 @@ const DietPlanBuilder = () => {
                             {/* Macro Targets */}
                             <div>
                                 <h3 className="font-bold mb-4 text-xs uppercase tracking-widest text-[#a5d391]">Daily Macro Targets</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                                     <div className="bg-[#080b12]/80 border border-white/10 rounded-2xl p-4">
                                         <div className="text-xs text-white/50 mb-1">Total Kcal</div>
                                         <div className="flex items-center gap-2">

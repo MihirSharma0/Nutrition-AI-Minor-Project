@@ -2,8 +2,8 @@ import React from 'react';
 
 const EmergencyContact = () => {
     return (
-        <section className="py-12 max-w-4xl mx-auto px-8 relative z-20 mb-24">
-            <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+        <section className="py-12 max-w-4xl mx-auto px-4 sm:px-8 relative z-20 mb-16 sm:mb-24">
+            <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left">
                 <div className="w-12 h-12 bg-[#ef4444]/20 rounded-full flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[#ef4444]">medical_services</span>
                 </div>

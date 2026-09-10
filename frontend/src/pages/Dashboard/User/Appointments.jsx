@@ -37,12 +37,12 @@ const Appointments = () => {
                     <h2 className="text-lg font-bold font-hero-display text-white/70 mt-12">Historical Logs</h2>
                     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-xl">
                         {[1, 2, 3].map((item, idx) => (
-                            <div key={idx} className={`p-6 flex items-center justify-between ${idx !== 2 ? 'border-b border-white/10' : ''} hover:bg-white/5 transition-colors cursor-pointer`}>
-                                <div>
-                                    <div className="font-bold mb-1 font-hero-display">Initial AI Protocol Setup</div>
-                                    <div className="text-sm text-white/50">Sep 28, 2026 • 45m Session</div>
+                            <div key={idx} className={`p-6 flex items-center justify-between gap-3 ${idx !== 2 ? 'border-b border-white/10' : ''} hover:bg-white/5 transition-colors cursor-pointer`}>
+                                <div className="min-w-0">
+                                    <div className="font-bold mb-1 font-hero-display truncate">Initial AI Protocol Setup</div>
+                                    <div className="text-sm text-white/50 truncate">Sep 28, 2026 • 45m Session</div>
                                 </div>
-                                <span className="material-symbols-outlined text-[#a5d391]">chevron_right</span>
+                                <span className="material-symbols-outlined shrink-0 text-[#a5d391]">chevron_right</span>
                             </div>
                         ))}
                     </div>

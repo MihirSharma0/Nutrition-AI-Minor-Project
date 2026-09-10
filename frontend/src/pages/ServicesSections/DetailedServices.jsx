@@ -97,18 +97,18 @@ const DetailedServices = () => {
     const [activeIdx, setActiveIdx] = useState(0);
 
     return (
-        <section className="py-24 max-w-7xl mx-auto px-8 relative z-20">
+        <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
             <div className="text-center mb-16">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Specialized Care</span>
-                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">Detailed Clinical Services</h2>
-                <p className="text-white/60 text-lg max-w-2xl mx-auto leading-relaxed">
+                <h2 className="font-hero-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">Detailed Clinical Services</h2>
+                <p className="text-white/60 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
                     Explore our comprehensive range of specialized protocols. Select a service below to view the clinical approach and expected outcomes.
                 </p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-12">
+            <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12">
                 {/* Sidebar Navigation */}
-                <div className="lg:w-1/3 flex flex-col gap-2 h-[600px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="lg:w-1/3 flex flex-col gap-2 h-[320px] sm:h-[420px] lg:h-[600px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     {services.map((service, idx) => (
                         <button 
                             key={idx} 
@@ -123,25 +123,25 @@ const DetailedServices = () => {
 
                 {/* Content Area */}
                 <div className="lg:w-2/3">
-                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-12 min-h-[600px] relative overflow-hidden flex flex-col">
-                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                            <span className="material-symbols-outlined text-[12rem] text-white">{services[activeIdx].icon}</span>
+                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 sm:p-8 md:p-12 min-h-[500px] sm:min-h-[600px] relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-6 sm:p-12 opacity-5 pointer-events-none">
+                            <span className="material-symbols-outlined text-[8rem] sm:text-[12rem] text-white">{services[activeIdx].icon}</span>
                         </div>
-                        
+
                         <div className="relative z-10 flex-grow">
                             <div className="inline-flex items-center gap-3 mb-6">
                                 <span className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/30">
                                     <span className="material-symbols-outlined text-primary">{services[activeIdx].icon}</span>
                                 </span>
-                                <h3 className="text-3xl font-bold text-white">{services[activeIdx].title}</h3>
+                                <h3 className="text-2xl sm:text-3xl font-bold text-white">{services[activeIdx].title}</h3>
                             </div>
 
                             <div className="mb-8">
                                 <h4 className="text-primary text-xs font-bold uppercase tracking-widest mb-3">Overview</h4>
-                                <p className="text-white/80 leading-relaxed text-lg">{services[activeIdx].overview}</p>
+                                <p className="text-white/80 leading-relaxed text-base sm:text-lg">{services[activeIdx].overview}</p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8">
                                 <div>
                                     <h4 className="text-primary text-xs font-bold uppercase tracking-widest mb-3">Key Benefits</h4>
                                     <ul className="space-y-2">
@@ -160,7 +160,7 @@ const DetailedServices = () => {
                             </div>
                         </div>
 
-                        <div className="relative z-10 border-t border-white/10 pt-8 mt-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="relative z-10 border-t border-white/10 pt-8 mt-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                             <div>
                                 <h4 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-sm">account_tree</span> Process

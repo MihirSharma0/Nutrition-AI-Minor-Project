@@ -75,12 +75,12 @@ const BlogManagement = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {blogs.map(blog => (
-                            <div key={blog.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-start">
-                                <div>
-                                    <h3 className="font-bold text-lg">{blog.title}</h3>
+                            <div key={blog.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-start gap-3">
+                                <div className="min-w-0">
+                                    <h3 className="font-bold text-lg break-words">{blog.title}</h3>
                                     <p className="text-white/60 text-sm line-clamp-2 mt-1">{blog.content}</p>
                                 </div>
-                                <button onClick={() => deleteBlog(blog.id)} className="text-red-400 hover:text-red-300 ml-4">
+                                <button onClick={() => deleteBlog(blog.id)} className="text-red-400 hover:text-red-300 shrink-0">
                                     Delete
                                 </button>
                             </div>

@@ -9,14 +9,14 @@ const SocialLinks = () => {
     ];
 
     return (
-        <section className="py-12 max-w-7xl mx-auto px-8 relative z-20 text-center">
+        <section className="py-12 max-w-7xl mx-auto px-4 sm:px-8 relative z-20 text-center">
             <h3 className="text-white/40 font-bold uppercase tracking-widest text-sm mb-8">Connect with our Network</h3>
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
                 {socials.map((social, idx) => (
-                    <a 
-                        key={idx} 
-                        href="#" 
-                        className={`flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-4 rounded-full text-white/70 transition-all duration-300 ${social.color}`}
+                    <a
+                        key={idx}
+                        href="#"
+                        className={`flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 sm:px-6 sm:py-4 rounded-full text-white/70 transition-all duration-300 ${social.color}`}
                     >
                         <span className="material-symbols-outlined text-xl">{social.icon}</span>
                         <span className="font-bold text-sm">{social.platform}</span>

@@ -40,7 +40,7 @@ const GlobalAISection = () => {
         <section className="py-24 relative z-20 overflow-hidden min-h-[900px] flex items-center">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[600px] bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
             
-            <div className="max-w-7xl mx-auto px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 
                 {/* Left Side: Header & Controls */}
                 <div className="text-center lg:text-left mb-16 lg:mb-0">
@@ -161,7 +161,7 @@ const GlobalAISection = () => {
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0.9, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-[#080b12] border border-primary/30 rounded-[3rem] p-8 md:p-12 max-w-xl w-full relative shadow-[0_0_100px_rgba(163,230,53,0.1)] overflow-hidden"
+                            className="bg-[#080b12] border border-primary/30 rounded-[3rem] p-6 sm:p-8 md:p-12 max-w-xl w-full relative shadow-[0_0_100px_rgba(163,230,53,0.1)] overflow-hidden"
                         >
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                             

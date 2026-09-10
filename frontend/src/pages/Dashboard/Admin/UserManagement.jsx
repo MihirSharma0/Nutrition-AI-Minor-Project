@@ -108,7 +108,7 @@ const UserManagement = () => {
                 </div>
                 
                 {/* Role Filter Tabs */}
-                <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 text-xs font-bold backdrop-blur-md">
+                <div className="flex items-center flex-wrap gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 text-xs font-bold backdrop-blur-md">
                     {['ALL', 'USER', 'NUTRITIONIST', 'ADMIN'].map((role) => (
                         <button
                             key={role}
@@ -127,16 +127,16 @@ const UserManagement = () => {
                     Loading user accounts...
                 </div>
             ) : (
-                <div className="overflow-x-auto bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl p-2">
-                    <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl p-2">
+                    <table className="w-full min-w-[820px] text-left border-collapse">
                         <thead>
                             <tr className="border-b border-white/10 bg-white/5 text-white/60 text-xs uppercase tracking-wider font-mono">
-                                <th className="p-5 rounded-tl-2xl">ID</th>
-                                <th className="p-5">User Name</th>
-                                <th className="p-5">Email</th>
-                                <th className="p-5">Status</th>
-                                <th className="p-5">Role</th>
-                                <th className="p-5 text-right rounded-tr-2xl">Actions</th>
+                                <th className="p-5 rounded-tl-2xl whitespace-nowrap">ID</th>
+                                <th className="p-5 whitespace-nowrap">User Name</th>
+                                <th className="p-5 whitespace-nowrap">Email</th>
+                                <th className="p-5 whitespace-nowrap">Status</th>
+                                <th className="p-5 whitespace-nowrap">Role</th>
+                                <th className="p-5 text-right rounded-tr-2xl whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5 text-sm">
@@ -176,16 +176,16 @@ const UserManagement = () => {
                                                 <option value="ADMIN">ADMIN</option>
                                             </select>
                                         </td>
-                                        <td className="p-5 text-right space-x-3">
-                                            <button 
-                                                onClick={() => handleOpenResetModal(user)} 
+                                        <td className="p-5 text-right whitespace-nowrap space-x-3">
+                                            <button
+                                                onClick={() => handleOpenResetModal(user)}
                                                 className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
                                             >
                                                 <span className="material-symbols-outlined text-sm">lock_reset</span>
                                                 Reset Password
                                             </button>
-                                            <button 
-                                                onClick={() => deleteUser(user.id)} 
+                                            <button
+                                                onClick={() => deleteUser(user.id)}
                                                 className="inline-flex items-center gap-1 text-xs font-bold text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
                                             >
                                                 <span className="material-symbols-outlined text-sm">delete</span>
@@ -203,7 +203,7 @@ const UserManagement = () => {
             {/* Reset Password Modal */}
             {selectedUser && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-                    <div className="bg-[#080b12] border border-white/15 rounded-[2.5rem] w-full max-w-md p-8 space-y-6 relative shadow-2xl">
+                    <div className="bg-[#080b12] border border-white/15 rounded-[2.5rem] w-full max-w-md p-5 sm:p-8 space-y-6 relative shadow-2xl">
                         <div className="flex items-center justify-between border-b border-white/10 pb-4">
                             <h3 className="text-2xl font-bold font-hero-display text-white flex items-center gap-2">
                                 <span className="material-symbols-outlined text-amber-400">lock_reset</span>
@@ -245,18 +245,18 @@ const UserManagement = () => {
                                 />
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-2">
+                            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                                 <button
                                     type="button"
                                     onClick={handleCloseResetModal}
-                                    className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-2xl font-bold transition-all cursor-pointer"
+                                    className="w-full sm:w-auto px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-2xl font-bold transition-all cursor-pointer"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={resetLoading}
-                                    className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold text-sm rounded-2xl transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                                    className="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black font-bold text-sm rounded-2xl transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                                 >
                                     {resetLoading ? "Updating..." : "Confirm Password Reset"}
                                 </button>

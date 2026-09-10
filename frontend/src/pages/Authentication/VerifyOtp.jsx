@@ -68,7 +68,7 @@ const VerifyOtp = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#080b12] flex items-center justify-center p-4 md:p-8 font-body-md overflow-hidden relative">
+        <div className="min-h-screen bg-[#080b12] flex items-center justify-center p-4 md:p-8 font-body-md overflow-x-hidden relative">
             <Starfield />
             {/* Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-500/10 blur-[100px] rounded-full pointer-events-none z-0"></div>
@@ -82,12 +82,12 @@ const VerifyOtp = () => {
                 <span className="text-sm font-medium">Back to Login</span>
             </button>
 
-            <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl p-10 relative z-10">
+            <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl p-6 sm:p-10 relative z-10">
                 <div className="flex flex-col items-center mb-8">
                     <div className="w-16 h-16 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mb-4">
                         <KeyRound className="w-8 h-8 text-green-400" />
                     </div>
-                    <h2 className="text-3xl font-headline-lg font-bold text-center text-white mb-2">Verify Account</h2>
+                    <h2 className="text-2xl sm:text-3xl font-headline-lg font-bold text-center text-white mb-2">Verify Account</h2>
                     <p className="text-center text-gray-400 text-sm px-4">
                         Please enter the 6-digit OTP code sent to your email to verify your account. If you received a link instead, you can click it directly.
                     </p>

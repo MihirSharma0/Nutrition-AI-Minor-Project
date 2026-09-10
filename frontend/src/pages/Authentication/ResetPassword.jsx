@@ -46,10 +46,10 @@ const ResetPassword = () => {
 
     return (
         <div className="min-h-screen bg-[#080b12] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-body-md text-white">
-            <div className="max-w-md w-full space-y-8 bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative">
-                
+            <div className="max-w-md w-full space-y-8 bg-white/5 backdrop-blur-xl p-6 sm:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative">
+
                 <div>
-                    <h2 className="mt-2 text-center text-3xl font-bold tracking-tight text-white">
+                    <h2 className="mt-2 text-center text-2xl sm:text-3xl font-bold tracking-tight text-white">
                         Create New Password
                     </h2>
                     <p className="mt-4 text-center text-sm text-white/60">

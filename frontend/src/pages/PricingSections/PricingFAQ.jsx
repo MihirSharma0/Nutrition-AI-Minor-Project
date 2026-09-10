@@ -11,10 +11,10 @@ const PricingFAQ = () => {
     const [openIdx, setOpenIdx] = useState(null);
 
     return (
-        <section className="py-24 max-w-4xl mx-auto px-8 relative z-20">
-            <div className="text-center mb-16">
+        <section className="py-16 sm:py-24 max-w-4xl mx-auto px-4 sm:px-8 relative z-20">
+            <div className="text-center mb-10 sm:mb-16">
                 <span className="text-[#38bdf8] font-bold tracking-widest uppercase text-sm mb-4 block">Clarifications</span>
-                <h2 className="font-hero-display text-4xl font-bold text-white mb-6">Billing & Upgrades</h2>
+                <h2 className="font-hero-display text-3xl sm:text-4xl font-bold text-white mb-6">Billing & Upgrades</h2>
             </div>
             
             <div className="space-y-4">
@@ -23,16 +23,16 @@ const PricingFAQ = () => {
                         key={idx} 
                         className={`border ${openIdx === idx ? 'border-[#38bdf8] bg-[#38bdf8]/5' : 'border-white/10 bg-white/5'} rounded-2xl overflow-hidden transition-all duration-300`}
                     >
-                        <button 
-                            className="w-full px-8 py-6 text-left flex justify-between items-center"
+                        <button
+                            className="w-full px-5 sm:px-8 py-5 sm:py-6 text-left flex justify-between items-center gap-4"
                             onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
                         >
                             <span className={`font-bold ${openIdx === idx ? 'text-[#38bdf8]' : 'text-white'}`}>{faq.q}</span>
-                            <span className={`material-symbols-outlined transition-transform duration-300 ${openIdx === idx ? 'rotate-180 text-[#38bdf8]' : 'text-white/40'}`}>
+                            <span className={`material-symbols-outlined transition-transform duration-300 shrink-0 ${openIdx === idx ? 'rotate-180 text-[#38bdf8]' : 'text-white/40'}`}>
                                 expand_more
                             </span>
                         </button>
-                        <div className={`px-8 overflow-hidden transition-all duration-300 ${openIdx === idx ? 'max-h-40 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className={`px-5 sm:px-8 overflow-hidden transition-all duration-300 ${openIdx === idx ? 'max-h-60 sm:max-h-40 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>
                             <p className="text-white/60 leading-relaxed">{faq.a}</p>
                         </div>
                     </div>

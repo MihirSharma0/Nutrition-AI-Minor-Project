@@ -27,13 +27,13 @@ const FeaturedPrograms = () => {
     ];
 
     return (
-        <section className="py-section-gap max-w-7xl mx-auto px-8 relative z-20">
+        <section className="py-16 sm:py-24 md:py-section-gap max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
             <div className="text-center mb-16">
                 <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Tailored Protocols</span>
                 <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-on-background mb-6">Featured Programs</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {programs.map((prog, idx) => (
                     <div key={idx} className={`relative rounded-3xl p-8 border ${prog.featured ? 'bg-gradient-to-b from-primary/10 to-transparent border-primary/30 shadow-xl' : 'bg-white border-outline-variant/30 shadow-md'} flex flex-col hover:-translate-y-2 transition-transform duration-300`}>
                         {prog.featured && (

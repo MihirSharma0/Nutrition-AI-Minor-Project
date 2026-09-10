@@ -25,11 +25,11 @@ const ServicesOverview = () => {
     ];
 
     return (
-        <section className="py-section-gap relative overflow-hidden z-20">
+        <section className="py-16 sm:py-24 md:py-section-gap relative overflow-hidden z-20">
             <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/5 blur-[100px] rounded-full pointer-events-none -translate-y-1/2"></div>
-            
-            <div className="max-w-7xl mx-auto px-8">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
                     <div className="max-w-2xl">
                         <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Services Overview</span>
                         <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-on-background mb-6">Comprehensive Nutritional Solutions</h2>

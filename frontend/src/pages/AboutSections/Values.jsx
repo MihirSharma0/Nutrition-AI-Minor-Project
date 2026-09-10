@@ -9,14 +9,14 @@ const Values = () => {
     ];
 
     return (
-        <section className="py-24 max-w-7xl mx-auto px-8 relative z-20">
+        <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
             <div className="text-center mb-16">
-                <h2 className="font-hero-display text-4xl md:text-5xl font-bold text-white mb-6">Our Core Values</h2>
+                <h2 className="font-hero-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">Our Core Values</h2>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {values.map((val, idx) => (
-                    <div key={idx} className="bg-gradient-to-b from-white/10 to-transparent border border-white/10 rounded-2xl p-8 hover:-translate-y-2 transition-transform duration-300">
+                    <div key={idx} className="bg-gradient-to-b from-white/10 to-transparent border border-white/10 rounded-2xl p-6 sm:p-8 hover:-translate-y-2 transition-transform duration-300">
                         <div className="text-[#a5d391] font-hero-display text-5xl font-black mb-4 opacity-50">0{idx + 1}</div>
                         <h3 className="text-xl font-bold text-white mb-4">{val.title}</h3>
                         <p className="text-white/60 leading-relaxed text-sm">{val.desc}</p>

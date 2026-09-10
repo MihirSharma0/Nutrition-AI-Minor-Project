@@ -114,7 +114,7 @@ const Login = () => {
             {/* BEGIN: Google Role Selection & Onboarding Modal */}
             {requiresRoleSelection && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080b12]/80 backdrop-blur-sm">
-                    <div className="w-full max-w-md bg-[#0d121c] border border-[#a5d391]/30 rounded-3xl p-8 shadow-[0_0_40px_rgba(165,211,145,0.15)] flex flex-col items-center">
+                    <div className="w-full max-w-md bg-[#0d121c] border border-[#a5d391]/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_40px_rgba(165,211,145,0.15)] flex flex-col items-center">
                         <div className="w-12 h-12 bg-gradient-to-tr from-[#a5d391] to-emerald-400 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-[#a5d391]/20">
                             <Sparkles className="w-6 h-6 text-black" />
                         </div>

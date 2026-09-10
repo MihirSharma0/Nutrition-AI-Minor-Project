@@ -43,8 +43,8 @@ const SqlConsole = () => {
                         <span className="w-1.5 h-1.5 bg-[#a5d391] rounded-full animate-pulse"></span>
                         SQL Terminal Engine
                     </div>
-                    <h1 className="text-4xl font-bold font-hero-display text-white flex items-center gap-3">
-                        <span className="material-symbols-outlined text-[#a5d391] text-3xl">terminal</span>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-hero-display text-white flex items-center gap-3">
+                        <span className="material-symbols-outlined text-[#a5d391] text-2xl sm:text-3xl">terminal</span>
                         Database SQL Console
                     </h1>
                     <p className="text-white/60 text-sm mt-1 font-light">
@@ -54,7 +54,7 @@ const SqlConsole = () => {
             </div>
 
             {/* Quick Preset Buttons */}
-            <div className="bg-white/5 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 space-y-4">
+            <div className="bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-[2rem] border border-white/10 space-y-4">
                 <span className="text-xs font-bold text-white/50 uppercase tracking-wider block font-mono">Quick Query Snippets:</span>
                 <div className="flex flex-wrap gap-2.5">
                     {presetQueries.map((preset, idx) => (
@@ -70,8 +70,8 @@ const SqlConsole = () => {
             </div>
 
             {/* SQL Editor Area */}
-            <div className="bg-white/5 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/10 space-y-5 shadow-2xl">
-                <div className="flex items-center justify-between">
+            <div className="bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-[2.5rem] border border-white/10 space-y-5 shadow-2xl">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                     <span className="text-xs font-mono text-[#a5d391]">SQL Engine // MySQL 8.4</span>
                     <button 
                         onClick={() => setQuery('')}
@@ -85,14 +85,14 @@ const SqlConsole = () => {
                     onChange={(e) => setQuery(e.target.value)}
                     rows={5}
                     placeholder="ENTER SQL QUERY HERE (e.g. SELECT * FROM users;)"
-                    className="w-full bg-black/50 border border-white/15 rounded-2xl p-5 font-mono text-sm text-[#a5d391] focus:outline-none focus:border-[#a5d391] resize-y"
+                    className="w-full bg-black/50 border border-white/15 rounded-2xl p-3 sm:p-5 font-mono text-sm text-[#a5d391] focus:outline-none focus:border-[#a5d391] resize-y"
                 />
                 
-                <div className="flex justify-end gap-3">
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <button
                         onClick={handleExecute}
                         disabled={loading || !query.trim()}
-                        className="flex items-center gap-2 px-7 py-3 bg-[#a5d391] hover:bg-white disabled:opacity-50 text-black font-bold rounded-2xl text-sm transition-all duration-300 shadow-[0_0_20px_rgba(165,211,145,0.3)] cursor-pointer"
+                        className="flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-3 bg-[#a5d391] hover:bg-white disabled:opacity-50 text-black font-bold rounded-2xl text-sm transition-all duration-300 shadow-[0_0_20px_rgba(165,211,145,0.3)] cursor-pointer"
                     >
                         {loading ? (
                             <>

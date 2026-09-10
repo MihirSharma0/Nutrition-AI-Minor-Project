@@ -58,14 +58,14 @@ const ProgressTracking = () => {
                         <h2 className="text-xl font-bold mb-1 font-hero-display">Lipid Oxidation Curve</h2>
                         <p className="text-white/50 text-sm">Trajectory mapped over the last 6 weeks.</p>
                     </div>
-                    <select className="bg-[#080b12]/80 border border-white/10 px-4 py-2.5 rounded-xl text-sm font-bold outline-none text-white/70 focus:text-white">
+                    <select className="w-full md:w-auto bg-[#080b12]/80 border border-white/10 px-4 py-2.5 rounded-xl text-sm font-bold outline-none text-white/70 focus:text-white">
                         <option>Last 6 Weeks</option>
                         <option>Last 3 Months</option>
                         <option>All Time</option>
                     </select>
                 </div>
                 
-                <div className="h-[300px] w-full">
+                <div className="h-[220px] sm:h-[260px] lg:h-[300px] w-full">
                     <Line data={data} options={options} />
                 </div>
             </div>

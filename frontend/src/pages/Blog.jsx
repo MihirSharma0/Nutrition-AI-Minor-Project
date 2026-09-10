@@ -41,7 +41,7 @@ const Blog = () => {
             {/* Ambient Starfield Background */}
             <Starfield />
             
-            <div className="max-w-7xl mx-auto px-8 w-full relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 w-full relative z-10">
                 {/* Header */}
                 <div className="text-center mb-24">
                     <div className="inline-flex items-center gap-3 mb-6">
@@ -69,8 +69,8 @@ const Blog = () => {
                                 <div className={`absolute inset-0 ${article.featured ? 'bg-gradient-to-t md:bg-gradient-to-r' : 'bg-gradient-to-t'} from-[#080b12] via-[#080b12]/50 to-transparent`}></div>
                             </div>
                             
-                            <div className={`p-10 flex flex-col justify-center ${article.featured ? 'md:w-1/2 -mt-20 md:mt-0 relative z-10' : '-mt-16 relative z-10'}`}>
-                                <div className="flex items-center gap-4 mb-6">
+                            <div className={`p-6 sm:p-10 flex flex-col justify-center ${article.featured ? 'md:w-1/2 -mt-20 md:mt-0 relative z-10' : '-mt-16 relative z-10'}`}>
+                                <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
                                     <span className="bg-[#a3e635]/10 text-[#a3e635] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">{article.category}</span>
                                     <span className="text-white/40 text-xs font-bold tracking-widest">{article.date}</span>
                                 </div>

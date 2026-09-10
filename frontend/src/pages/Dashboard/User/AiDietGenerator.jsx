@@ -27,7 +27,7 @@ const AiDietGenerator = () => {
         <div className="w-full">
             <h1 className="text-3xl font-bold font-hero-display mb-8 tracking-tight text-white">AI Diet Plan Generator</h1>
             
-            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 mb-8 shadow-xl">
+            <div className="bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 mb-8 shadow-xl">
                 <form onSubmit={generatePlan} className="space-y-6">
                     <div>
                         <label className="block text-[#a5d391] text-xs font-bold uppercase tracking-widest mb-2">What are your health goals?</label>
@@ -57,7 +57,7 @@ const AiDietGenerator = () => {
             </div>
 
             {plan && (
-                <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-xl">
+                <div className="bg-white/5 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 shadow-xl">
                     <h2 className="text-xl font-bold mb-4 text-[#a5d391] font-hero-display">Your Personalized Plan</h2>
                     <div className="whitespace-pre-wrap text-white/80 leading-relaxed font-body-md">
                         {plan}

@@ -99,9 +99,9 @@ const AdminHome = () => {
             </div>
 
             {/* Admin Credentials Banner */}
-            <div className="bg-white/5 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden shadow-2xl shadow-[#a5d391]/5">
+            <div className="bg-white/5 backdrop-blur-2xl p-5 sm:p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden shadow-2xl shadow-[#a5d391]/5">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-[#a5d391]/10 rounded-full blur-[100px] pointer-events-none"></div>
-                
+
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
                     <div className="space-y-3">
                         <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#a5d391]/15 text-[#a5d391] rounded-full text-xs font-mono font-bold border border-[#a5d391]/30 shadow-[0_0_12px_rgba(165,211,145,0.2)]">
@@ -114,8 +114,8 @@ const AdminHome = () => {
                         </p>
                     </div>
 
-                    <div className="bg-black/40 backdrop-blur-md p-5 rounded-2xl border border-white/10 space-y-3 font-mono text-xs min-w-[320px] shadow-lg">
-                        <div className="flex justify-between items-center text-white/50 pb-2 border-b border-white/10">
+                    <div className="bg-black/40 backdrop-blur-md p-5 rounded-2xl border border-white/10 space-y-3 font-mono text-xs w-full md:min-w-[320px] shadow-lg">
+                        <div className="flex flex-wrap justify-between items-center gap-2 text-white/50 pb-2 border-b border-white/10">
                             <span className="tracking-wider">MASTER ACCESS</span>
                             <div className="flex items-center gap-3">
                                 <button 
@@ -134,13 +134,13 @@ const AdminHome = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className="flex justify-between text-white py-0.5">
+                        <div className="flex flex-wrap justify-between gap-x-2 text-white py-0.5">
                             <span className="text-white/60">Email:</span>
-                            <span className="font-bold text-[#a5d391]">{credentials.email}</span>
+                            <span className="font-bold text-[#a5d391] break-all">{credentials.email}</span>
                         </div>
-                        <div className="flex justify-between text-white py-0.5">
+                        <div className="flex flex-wrap justify-between gap-x-2 text-white py-0.5">
                             <span className="text-white/60">Password:</span>
-                            <span className="font-bold text-amber-300">{credentials.password}</span>
+                            <span className="font-bold text-amber-300 break-all">{credentials.password}</span>
                         </div>
                     </div>
                 </div>
@@ -178,7 +178,7 @@ const AdminHome = () => {
                         Fetching system telemetry...
                     </div>
                 ) : stats ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div className="p-7 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 hover:border-[#a5d391]/40 transition-all duration-300 shadow-xl">
                             <h3 className="text-sm text-white/60 font-medium">Total Registered Users</h3>
                             <p className="text-4xl font-bold text-[#a5d391] font-hero-display mt-3">{stats.totalUsers}</p>
@@ -204,7 +204,7 @@ const AdminHome = () => {
             {/* Edit Credentials Modal */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-                    <div className="bg-[#080b12] border border-white/15 rounded-[2.5rem] w-full max-w-md p-8 space-y-6 relative shadow-2xl">
+                    <div className="bg-[#080b12] border border-white/15 rounded-[2.5rem] w-full max-w-md p-6 sm:p-8 space-y-6 relative shadow-2xl">
                         <div className="flex items-center justify-between border-b border-white/10 pb-4">
                             <h3 className="text-2xl font-bold font-hero-display text-white flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#a5d391]">edit_square</span>

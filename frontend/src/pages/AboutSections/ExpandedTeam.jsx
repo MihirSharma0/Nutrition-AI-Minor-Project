@@ -17,12 +17,12 @@ const ExpandedTeam = () => {
     ];
 
     return (
-        <section className="py-12 max-w-7xl mx-auto px-8 relative z-20">
-            <h2 className="font-hero-display text-3xl font-bold tracking-tight mb-12 text-center text-white/80">Extended Clinical Team</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <section className="py-12 max-w-7xl mx-auto px-4 sm:px-8 relative z-20">
+            <h2 className="font-hero-display text-2xl sm:text-3xl font-bold tracking-tight mb-12 text-center text-white/80">Extended Clinical Team</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
                 {additionalMembers.map((person, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-center text-center hover:bg-white/10 transition-colors">
-                        <img src={person.image} alt={person.name} className="w-32 h-32 rounded-full object-cover mb-6 border-4 border-white/10" />
+                    <div key={idx} className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center hover:bg-white/10 transition-colors">
+                        <img src={person.image} alt={person.name} className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover mb-6 border-4 border-white/10" />
                         <h4 className="text-2xl font-bold text-white mb-2">{person.name}</h4>
                         <div className="text-primary font-bold text-sm uppercase tracking-widest mb-4">{person.role}</div>
                         <p className="text-white/60">{person.bio}</p>
