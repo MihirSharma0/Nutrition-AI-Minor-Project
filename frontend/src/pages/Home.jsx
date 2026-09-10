@@ -72,7 +72,7 @@ const Home = () => {
                 </div>
 
                 {/* Bottom Info Grid */}
-                <div className="grid grid-cols-12 gap-6 sm:gap-8 md:gap-12 items-end mb-36 md:mb-48">
+                <div className="grid grid-cols-12 gap-6 sm:gap-8 md:gap-12 items-end mb-40 md:mb-56">
                     
                     {/* Left: Avatars */}
                     <div className="col-span-12 md:col-span-3 space-y-4">
@@ -125,13 +125,13 @@ const Home = () => {
             {/* Below sections restored like before */}
             <div className="relative bg-background w-full z-20">
                 {/* Hero Image Pivot Section */}
-                <section className="max-w-container-max mx-auto px-4 sm:px-edge-margin -mt-36 relative z-20">
+                <section className="max-w-7xl mx-auto px-4 sm:px-8 -mt-24 md:-mt-36 relative z-20">
                     <div className="relative rounded-xl overflow-hidden shadow-[0_80px_120px_-20px_rgba(15,23,42,0.3)] aspect-[21/9] border border-white/10">
                         <img className="w-full h-full object-cover scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUQW1ayK2QptnJC4qRpFZJQfK25SrdzXBlBBKDdfgFsY3fbK5Q9MBP4F2v2a6cli_nEXhYxZdynfefZ9y6wd9ardu7fb6hI4n4NzwrwE4B--Y4wqSMdeuOKZZfTXGlE55PD6O95ZslKGxZFe9jEyC5O4jQKnL_jnYppX1ixe10PJAE_5uvWDiX9c_vA5cz5JtDILmRAtwTwIPmdRfsDOx7e2W8rsEiFw4gzv8YSmBzQ-2grz1UCn8l" alt="Dashboard"/>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                         
                         {/* Floating Biometric UI */}
-                        <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">
+                        <div className="absolute bottom-4 right-4 sm:bottom-10 sm:left-10 sm:right-10 flex justify-end sm:justify-between items-end">
                             <div className="bg-black/40 backdrop-blur-3xl border border-white/10 p-8 rounded-3xl flex gap-16 inner-glow hidden sm:flex">
                                 <div className="flex flex-col">
                                     <span className="font-label-caps text-label-caps text-primary-fixed mb-2 opacity-80">VELOCITY OF RISK</span>
