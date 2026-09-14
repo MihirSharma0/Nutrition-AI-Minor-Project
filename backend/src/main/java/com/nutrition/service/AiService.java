@@ -170,6 +170,28 @@ public class AiService {
                 System.err.println("OpenFoodFacts API lookup failed for " + url + ": " + e.getMessage());
             }
         }
+
+        // Try UPCItemDB online database fallback
+        try {
+            String upcUrl = "https://api.upcitemdb.com/prod/trial/lookup?upc=" + cleanBarcode;
+            ResponseEntity<Map> upcRes = restTemplate.exchange(upcUrl, HttpMethod.GET, entity, Map.class);
+            if (upcRes.getStatusCode().is2xxSuccessful() && upcRes.getBody() != null) {
+                Map body = upcRes.getBody();
+                List items = (List) body.get("items");
+                if (items != null && !items.isEmpty()) {
+                    Map first = (Map) items.get(0);
+                    Map<String, Object> product = new HashMap<>();
+                    if (first.containsKey("title")) product.put("product_name", first.get("title"));
+                    if (first.containsKey("brand")) product.put("brands", first.get("brand"));
+                    if (first.containsKey("category")) product.put("categories", first.get("category"));
+                    if (first.containsKey("description")) product.put("ingredients_text", first.get("description"));
+                    return product;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("UPCItemDB lookup failed for barcode " + cleanBarcode + ": " + e.getMessage());
+        }
+
         return null;
     }
 
