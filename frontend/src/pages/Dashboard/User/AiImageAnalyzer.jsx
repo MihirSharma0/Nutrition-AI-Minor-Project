@@ -49,8 +49,12 @@ const AiImageAnalyzer = () => {
                     qrbox: { width: 250, height: 160 }
                 },
                 (decodedText) => {
-                    setBarcode(decodedText);
+                    const cleanCode = decodedText.trim();
+                    setBarcode(cleanCode);
+                    setInputType('BARCODE');
                     stopCameraScanner(html5QrcodeScanner);
+                    // Automatically trigger analysis for scanned barcode
+                    analyzeFoodWithParams('BARCODE', cleanCode, null, allergyTags.join(', '));
                 },
                 (errorMessage) => {
                     // scanning...
@@ -64,24 +68,24 @@ const AiImageAnalyzer = () => {
         }
 
         return () => {
-            if (scannerRef.current && scannerRef.current.isScanning) {
-                scannerRef.current.stop().catch(console.error);
+            if (scannerRef.current) {
+                try {
+                    scannerRef.current.stop().catch(() => {});
+                } catch (e) {}
             }
         };
-    }, [isCameraScanning]);
+    }, [isCameraScanning, allergyTags]);
 
-    const stopCameraScanner = (scannerInstance) => {
+    const stopCameraScanner = async (scannerInstance) => {
         const scanner = scannerInstance || scannerRef.current;
-        if (scanner && scanner.isScanning) {
-            scanner.stop().then(() => {
-                setIsCameraScanning(false);
-            }).catch(err => {
-                console.error("Error stopping scanner:", err);
-                setIsCameraScanning(false);
-            });
-        } else {
-            setIsCameraScanning(false);
+        if (scanner) {
+            try {
+                await scanner.stop();
+            } catch (err) {
+                // Ignore scanner stop error if already stopped
+            }
         }
+        setIsCameraScanning(false);
     };
 
     const handleAddAllergy = (e) => {
@@ -111,39 +115,50 @@ const AiImageAnalyzer = () => {
         }
     };
 
-    const analyzeFood = async (e) => {
-        if (e) e.preventDefault();
+    const analyzeFoodWithParams = async (selectedInputType, selectedBarcode, selectedImage, selectedAllergies) => {
         setLoading(true);
         setErrorMsg('');
         setAnalysis(null);
 
         try {
             const payload = {
-                inputType,
-                imageUrl: previewImage || imageUrl,
-                barcode: barcode,
-                customAllergies: allergyTags.join(', ')
+                inputType: selectedInputType,
+                imageUrl: selectedImage,
+                barcode: selectedBarcode,
+                customAllergies: selectedAllergies
             };
             const response = await api.post('/ai/analyze-food', payload);
             setAnalysis(response.data);
         } catch (error) {
             console.error("Error analyzing food input", error);
-            setErrorMsg("Failed to analyze food. Please ensure input data or image is valid and try again.");
+            setErrorMsg("Failed to analyze food. Please check input data or image format and try again.");
         } finally {
             setLoading(false);
         }
+    };
+
+    const analyzeFood = async (e) => {
+        if (e) e.preventDefault();
+        analyzeFoodWithParams(
+            inputType,
+            barcode,
+            previewImage || imageUrl,
+            allergyTags.join(', ')
+        );
     };
 
     // Helper presets for testing barcode & image quickly
     const applyPresetBarcode = (code) => {
         setInputType('BARCODE');
         setBarcode(code);
+        analyzeFoodWithParams('BARCODE', code, null, allergyTags.join(', '));
     };
 
     const applySamplePhoto = (url) => {
         setInputType('FOOD_IMAGE');
         setImageUrl(url);
         setPreviewImage(url);
+        analyzeFoodWithParams('FOOD_IMAGE', null, url, allergyTags.join(', '));
     };
 
     return (
@@ -163,11 +178,11 @@ const AiImageAnalyzer = () => {
                     {/* Gemma AI Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 via-[#a5d391]/20 to-blue-500/20 border border-[#a5d391]/30 text-white text-xs font-bold shadow-lg">
                         <span className="material-symbols-outlined text-purple-300 text-base">auto_awesome</span>
-                        <span>Gemma AI Vision & OCR Engine</span>
+                        <span>Gemma AI Vision & Barcode OCR</span>
                     </div>
                 </div>
                 <p className="text-white/60 text-sm font-body-md max-w-3xl">
-                    Powered by Google Gemma AI vision model. Scan food dishes, ingredient labels, nutrition panels, or use live camera barcode scanning for instant allergen matching, additive safety, and health verdicts.
+                    Powered by Google Gemma AI vision & OpenFoodFacts global barcode database. Scan food dishes, ingredient labels, nutrition panels, or live camera barcodes for instant allergen matching, additive safety, and health verdicts.
                 </p>
             </div>
 

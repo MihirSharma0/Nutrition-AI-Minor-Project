@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.http.HttpMethod;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,10 +114,15 @@ public class AiService {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
+        Map<String, Object> offProduct = null;
+        if ("BARCODE".equalsIgnoreCase(request.getInputType()) && request.getBarcode() != null && !request.getBarcode().trim().isEmpty()) {
+            offProduct = fetchOpenFoodFactsProduct(request.getBarcode().trim());
+        }
+
         // 1. Try Gemma Model for Vision & OCR Analysis
         if (!"mock-key".equals(gemmaApiKey) && gemmaApiKey != null && !gemmaApiKey.isBlank()) {
             try {
-                return callGemmaApiForOCR(request, userAllergiesList, userDietType);
+                return callGemmaApiForOCR(request, userAllergiesList, userDietType, offProduct);
             } catch (Exception e) {
                 System.err.println("Gemma Model OCR/Vision call failed: " + e.getMessage() + ". Falling back to secondary engine.");
                 e.printStackTrace();
@@ -132,19 +139,67 @@ public class AiService {
         }
 
         // 3. Robust local OCR & Rule-based fallback engine
-        return performRuleBasedAnalysis(request, userAllergiesList, userDietType);
+        return performRuleBasedAnalysis(request, userAllergiesList, userDietType, offProduct);
     }
 
-    private FoodAnalysisResponseDto callGemmaApiForOCR(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType) throws Exception {
+    public Map<String, Object> fetchOpenFoodFactsProduct(String barcode) {
+        if (barcode == null || barcode.trim().isEmpty()) return null;
+        String cleanBarcode = barcode.trim();
+        String url = "https://world.openfoodfacts.org/api/v2/product/" + cleanBarcode + ".json";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "NutritionAIApp/1.0 (contact@nutritionai.com)");
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Map body = response.getBody();
+                Object statusObj = body.get("status");
+                if (statusObj != null && (statusObj.equals(1) || "1".equals(statusObj.toString()))) {
+                    Map<String, Object> product = (Map<String, Object>) body.get("product");
+                    if (product != null) return product;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("OpenFoodFacts API lookup failed for barcode " + cleanBarcode + ": " + e.getMessage());
+        }
+        return null;
+    }
+
+    private FoodAnalysisResponseDto callGemmaApiForOCR(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType, Map<String, Object> offProduct) throws Exception {
         String url = "https://generativelanguage.googleapis.com/v1beta/models/" + gemmaModel + ":generateContent?key=" + gemmaApiKey;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-goog-api-key", gemmaApiKey);
 
+        StringBuilder contextDetails = new StringBuilder();
+        if (offProduct != null) {
+            contextDetails.append("Retrieved OpenFoodFacts database entry for scanned barcode (").append(request.getBarcode()).append("):\n");
+            if (offProduct.containsKey("product_name")) contextDetails.append("Product Name: ").append(offProduct.get("product_name")).append("\n");
+            if (offProduct.containsKey("brands")) contextDetails.append("Brand: ").append(offProduct.get("brands")).append("\n");
+            if (offProduct.containsKey("categories")) contextDetails.append("Category: ").append(offProduct.get("categories")).append("\n");
+            if (offProduct.containsKey("serving_size")) contextDetails.append("Serving Size: ").append(offProduct.get("serving_size")).append("\n");
+            if (offProduct.containsKey("ingredients_text_en")) contextDetails.append("Ingredients: ").append(offProduct.get("ingredients_text_en")).append("\n");
+            else if (offProduct.containsKey("ingredients_text")) contextDetails.append("Ingredients: ").append(offProduct.get("ingredients_text")).append("\n");
+            if (offProduct.containsKey("additives_tags")) contextDetails.append("Additives: ").append(offProduct.get("additives_tags")).append("\n");
+            if (offProduct.containsKey("nutriments")) contextDetails.append("Nutriments: ").append(offProduct.get("nutriments")).append("\n");
+        } else {
+            contextDetails.append("Input Payload: ").append(request.getImageUrl() != null ? request.getImageUrl() : "Barcode Code: " + request.getBarcode());
+        }
+
         String prompt = String.format("""
-            You are Gemma AI, an expert vision OCR and food analysis model. Analyze this food input (%s): %s.
+            You are Gemma AI, an expert vision OCR and food analysis model. Analyze this food input (%s).
+            %s
             User Profile Allergies: %s. User Diet Preference: %s.
-            Extract product details, ingredients, additives, nutrition macros/micros, and check against user allergies.
+
+            Perform clinical nutrition analysis:
+            1. Extract or confirm product details, ingredients, additives, nutrition macros (calories, protein, carbs, fat, fiber, sugar, sodium).
+            2. Cross-match ingredients against the user's recorded allergies (%s).
+            3. Detect synthetic or harmful additives (E-numbers, preservatives, artificial sweeteners/colors).
+            4. Assign final verdict: SAFE (no allergen match, healthy macros), CAUTION (high sugar/sodium or synthetic additives), or AVOID (direct allergen conflict or dangerous ingredient).
+            5. Provide a plain-language explanation of the verdict.
+
             Return ONLY a valid JSON object matching this schema without any markdown formatting or extra commentary:
             {
               "productName": "string",
@@ -159,7 +214,7 @@ public class AiService {
               "nutrition": {"calories": 300, "proteinG": 10.0, "carbsG": 30.0, "fatG": 8.0, "fiberG": 4.0, "sugarG": 5.0, "sodiumMg": 200.0, "micronutrients": {"Iron": "2mg"}},
               "betterAlternatives": [{"id": 1, "title": "Alt Title", "description": "desc", "calories": 250, "proteinG": 15.0, "carbsG": 20.0, "fatG": 5.0, "imageUrl": "url", "whyBetter": "why"}]
             }
-            """, request.getInputType(), request.getImageUrl() != null ? request.getImageUrl() : request.getBarcode(), userAllergies, dietType);
+            """, request.getInputType(), contextDetails.toString(), userAllergies, dietType, userAllergies);
 
         List<Map<String, Object>> parts = new ArrayList<>();
         parts.add(Map.of("text", prompt));
@@ -174,7 +229,14 @@ public class AiService {
         }
 
         Map<String, Object> contentMap = Map.of("parts", parts);
-        Map<String, Object> body = Map.of("contents", List.of(contentMap));
+        Map<String, Object> generationConfig = Map.of(
+            "response_mime_type", "application/json",
+            "temperature", 0.2
+        );
+        Map<String, Object> body = Map.of(
+            "contents", List.of(contentMap),
+            "generationConfig", generationConfig
+        );
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
@@ -189,12 +251,16 @@ public class AiService {
 
         StringBuilder fullText = new StringBuilder();
         for (Map<String, Object> part : resParts) {
+            if (part.containsKey("thought") && Boolean.TRUE.equals(part.get("thought"))) {
+                continue;
+            }
             if (part.containsKey("text")) {
                 fullText.append(part.get("text")).append("\n");
             }
         }
 
-        String rawText = fullText.toString().replaceAll("```json", "").replaceAll("```", "").trim();
+        String rawText = fullText.toString().trim();
+        rawText = rawText.replaceAll("```json", "").replaceAll("```", "").trim();
         int firstBrace = rawText.indexOf("{");
         int lastBrace = rawText.lastIndexOf("}");
         if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
@@ -225,7 +291,7 @@ public class AiService {
         }
     }
 
-    private FoodAnalysisResponseDto performRuleBasedAnalysis(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType) {
+    private FoodAnalysisResponseDto performRuleBasedAnalysis(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType, Map<String, Object> offProduct) {
         String inputType = request.getInputType() != null ? request.getInputType().toUpperCase() : "FOOD_IMAGE";
         
         String productName;
@@ -237,7 +303,61 @@ public class AiService {
 
         if ("BARCODE".equals(inputType)) {
             String code = request.getBarcode() != null ? request.getBarcode().trim() : "";
-            if (code.equals("8901030700012") || code.contains("012")) {
+            if (offProduct != null) {
+                String rawName = offProduct.containsKey("product_name") && offProduct.get("product_name") != null ? offProduct.get("product_name").toString()
+                        : (offProduct.containsKey("product_name_en") && offProduct.get("product_name_en") != null ? offProduct.get("product_name_en").toString() : "Scanned Barcode Product (" + code + ")");
+                if (offProduct.containsKey("brands") && offProduct.get("brands") != null && !offProduct.get("brands").toString().isBlank()) {
+                    productName = offProduct.get("brands").toString() + " - " + rawName;
+                } else {
+                    productName = rawName;
+                }
+                category = offProduct.containsKey("categories") && offProduct.get("categories") != null ? offProduct.get("categories").toString() : "Packaged Barcode Product";
+                servingSize = offProduct.containsKey("serving_size") && offProduct.get("serving_size") != null ? offProduct.get("serving_size").toString() : "1 Serving";
+
+                String ingText = offProduct.containsKey("ingredients_text_en") && offProduct.get("ingredients_text_en") != null ? offProduct.get("ingredients_text_en").toString()
+                        : (offProduct.containsKey("ingredients_text") && offProduct.get("ingredients_text") != null ? offProduct.get("ingredients_text").toString() : "");
+                if (!ingText.isBlank()) {
+                    ingredients = Arrays.stream(ingText.split("[,;.]"))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty() && s.length() < 80)
+                            .collect(Collectors.toList());
+                } else {
+                    ingredients = List.of("Package Ingredient Info Not Listed");
+                }
+
+                Map nutriments = offProduct.containsKey("nutriments") && offProduct.get("nutriments") instanceof Map ? (Map) offProduct.get("nutriments") : Collections.emptyMap();
+                double cal = getDoubleFromMap(nutriments, "energy-kcal_100g", "energy-kcal_serving", "energy-kcal");
+                double pro = getDoubleFromMap(nutriments, "proteins_100g", "proteins_serving", "proteins");
+                double carb = getDoubleFromMap(nutriments, "carbohydrates_100g", "carbohydrates_serving", "carbohydrates");
+                double fat = getDoubleFromMap(nutriments, "fat_100g", "fat_serving", "fat");
+                double fib = getDoubleFromMap(nutriments, "fiber_100g", "fiber_serving", "fiber");
+                double sug = getDoubleFromMap(nutriments, "sugars_100g", "sugars_serving", "sugars");
+                double sod = getDoubleFromMap(nutriments, "sodium_100g", "sodium_serving", "sodium") * 1000.0;
+
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories((int) cal)
+                        .proteinG(pro)
+                        .carbsG(carb)
+                        .fatG(fat)
+                        .fiberG(fib)
+                        .sugarG(sug)
+                        .sodiumMg(sod)
+                        .micronutrients(Map.of("Source", "OpenFoodFacts Global Barcode API"))
+                        .build();
+
+                List addTags = offProduct.containsKey("additives_tags") && offProduct.get("additives_tags") instanceof List ? (List) offProduct.get("additives_tags") : null;
+                if (addTags != null) {
+                    for (Object tag : addTags) {
+                        String addName = tag.toString().replace("en:", "").toUpperCase();
+                        additives.add(FoodAnalysisResponseDto.AdditiveInfo.builder()
+                                .name(addName)
+                                .category("Food Additive")
+                                .riskLevel(addName.contains("E211") || addName.contains("E250") ? "HIGH" : "MODERATE")
+                                .description("Additive code identified in product registration.")
+                                .build());
+                    }
+                }
+            } else if (code.equals("8901030700012") || code.contains("012")) {
                 productName = "Nutri-Crunch Oat & Honey Bar with Almonds";
                 category = "Packaged Snack / Granola Bar";
                 servingSize = "1 Bar (50g)";
@@ -627,5 +747,17 @@ public class AiService {
             System.err.println("Error calling OpenAI: " + e.getMessage());
             return "Error generating AI response.";
         }
+    }
+
+    private double getDoubleFromMap(Map map, String... keys) {
+        if (map == null) return 0.0;
+        for (String key : keys) {
+            if (map.containsKey(key) && map.get(key) != null) {
+                try {
+                    return Double.parseDouble(map.get(key).toString());
+                } catch (Exception ignored) {}
+            }
+        }
+        return 0.0;
     }
 }
