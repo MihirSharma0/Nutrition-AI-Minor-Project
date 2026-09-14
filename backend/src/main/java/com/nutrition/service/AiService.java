@@ -145,24 +145,30 @@ public class AiService {
     public Map<String, Object> fetchOpenFoodFactsProduct(String barcode) {
         if (barcode == null || barcode.trim().isEmpty()) return null;
         String cleanBarcode = barcode.trim();
-        String url = "https://world.openfoodfacts.org/api/v2/product/" + cleanBarcode + ".json";
+        List<String> urls = List.of(
+                "https://world.openfoodfacts.org/api/v2/product/" + cleanBarcode + ".json",
+                "https://in.openfoodfacts.org/api/v2/product/" + cleanBarcode + ".json",
+                "https://world.openfoodfacts.org/api/v0/product/" + cleanBarcode + ".json"
+        );
         
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "NutritionAIApp/1.0 (contact@nutritionai.com)");
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        try {
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                Map body = response.getBody();
-                Object statusObj = body.get("status");
-                if (statusObj != null && (statusObj.equals(1) || "1".equals(statusObj.toString()))) {
-                    Map<String, Object> product = (Map<String, Object>) body.get("product");
-                    if (product != null) return product;
+        for (String url : urls) {
+            try {
+                ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    Map body = response.getBody();
+                    Object statusObj = body.get("status");
+                    if (statusObj != null && (statusObj.equals(1) || "1".equals(statusObj.toString()))) {
+                        Map<String, Object> product = (Map<String, Object>) body.get("product");
+                        if (product != null) return product;
+                    }
                 }
+            } catch (Exception e) {
+                System.err.println("OpenFoodFacts API lookup failed for " + url + ": " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("OpenFoodFacts API lookup failed for barcode " + cleanBarcode + ": " + e.getMessage());
         }
         return null;
     }
@@ -422,6 +428,66 @@ public class AiService {
                         .sugarG(9.4)
                         .sodiumMg(100.0)
                         .micronutrients(Map.of("Calcium", "240mg (24% DV)", "Vitamin A", "150mcg", "Vitamin D", "1.5mcg"))
+                        .build();
+            } else if (code.startsWith("8901058") || code.startsWith("8901063")) {
+                productName = "Britannia Good Day Butter & Cashew Cookies";
+                category = "Packaged Bakery / Biscuits";
+                servingSize = "1 Pack (60g)";
+                ingredients = List.of("Refined Wheat Flour (Maida)", "Sugar", "Butter", "Edible Vegetable Oil (Palm)", "Cashew Bits", "Milk Solids", "Leavening Agents (E503ii, E500ii)", "Emulsifier (E322)");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(290)
+                        .proteinG(4.2)
+                        .carbsG(39.0)
+                        .fatG(13.5)
+                        .fiberG(0.8)
+                        .sugarG(15.2)
+                        .sodiumMg(160.0)
+                        .micronutrients(Map.of("Calcium", "30mg"))
+                        .build();
+            } else if (code.startsWith("89040044") || code.startsWith("89040632")) {
+                productName = "Haldiram's Nagpur Spicy Aloo Bhujia Sev";
+                category = "Indian Savory Snack / Namkeen";
+                servingSize = "1 Serving (35g)";
+                ingredients = List.of("Chickpea Flour (Besan)", "Potatoes", "Edible Vegetable Oil (Palmolein)", "Spices & Seasoning (Red Chilli, Black Pepper, Cumin, Dry Mango, Clove, Cardamom)", "Salt");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(195)
+                        .proteinG(3.8)
+                        .carbsG(14.2)
+                        .fatG(13.8)
+                        .fiberG(1.5)
+                        .sugarG(0.5)
+                        .sodiumMg(280.0)
+                        .micronutrients(Map.of("Potassium", "150mg"))
+                        .build();
+            } else if (code.startsWith("8901207")) {
+                productName = "Dabur 100% Pure Natural Honey / Real Juice";
+                category = "Health & Grocery / Natural Sweetener";
+                servingSize = "1 Tablespoon (15g)";
+                ingredients = List.of("100% Pure Natural Multi-Flora Honey");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(48)
+                        .proteinG(0.1)
+                        .carbsG(12.2)
+                        .fatG(0.0)
+                        .fiberG(0.0)
+                        .sugarG(12.0)
+                        .sodiumMg(1.0)
+                        .micronutrients(Map.of("Antioxidants", "Flavonoids & Phenolics"))
+                        .build();
+            } else if (code.startsWith("8901368") || code.startsWith("8904104")) {
+                productName = "Everest / Catch Premium Ground Spices";
+                category = "Spices & Culinary Seasonings";
+                servingSize = "1 Teaspoon (5g)";
+                ingredients = List.of("Pure Ground Spices (Cumin, Coriander, Turmeric, Red Chilli, Black Pepper)");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(16)
+                        .proteinG(0.6)
+                        .carbsG(2.8)
+                        .fatG(0.6)
+                        .fiberG(1.2)
+                        .sugarG(0.1)
+                        .sodiumMg(4.0)
+                        .micronutrients(Map.of("Iron", "1.8mg", "Calcium", "20mg"))
                         .build();
             } else if (code.startsWith("8901491")) {
                 productName = "Lay's India's Magic Masala Potato Chips (PepsiCo)";
