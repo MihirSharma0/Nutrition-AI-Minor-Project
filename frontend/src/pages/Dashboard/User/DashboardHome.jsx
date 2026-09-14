@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const DashboardHome = () => {
     return (
@@ -46,6 +47,28 @@ const DashboardHome = () => {
                         <span className="material-symbols-outlined text-purple-400">video_camera_front</span>
                     </div>
                 </div>
+            </div>            {/* AI Food & Label Analyzer Launch Banner */}
+            <div className="bg-gradient-to-r from-emerald-950/40 via-white/5 to-[#a5d391]/10 backdrop-blur-xl border border-[#a5d391]/30 rounded-[2.5rem] p-6 sm:p-8 mb-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="absolute -top-12 -right-12 w-64 h-64 bg-[#a5d391]/15 blur-[100px] rounded-full pointer-events-none"></div>
+                <div className="flex items-start gap-4 relative z-10">
+                    <div className="p-3.5 rounded-2xl bg-[#a5d391]/10 text-[#a5d391] border border-[#a5d391]/30 backdrop-blur-md">
+                        <span className="material-symbols-outlined text-3xl">center_focus_strong</span>
+                    </div>
+                    <div>
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#a5d391]/10 text-[#a5d391] text-[10px] font-black uppercase tracking-widest border border-[#a5d391]/20 mb-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#a5d391] animate-pulse"></span>
+                            Module 4 Active • Vision & Barcode OCR
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-bold font-hero-display text-white">AI Food & Label Analyzer</h2>
+                        <p className="text-white/70 text-sm mt-1 max-w-2xl leading-relaxed">
+                            Scan food dishes, ingredient lists, nutrition panels, or barcodes for instant allergen cross-matching, additive detection, health verdicts (Safe / Caution / Avoid), and database recommendations.
+                        </p>
+                    </div>
+                </div>
+                <Link to="/dashboard/user/ai-image" className="shrink-0 bg-[#a5d391] hover:bg-white text-black font-bold text-xs uppercase tracking-widest px-6 py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(165,211,145,0.3)] cursor-pointer flex items-center gap-2 relative z-10">
+                    <span>Launch AI Analyzer</span>
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                </Link>
             </div>
 
             {/* AI Insights & Alerts */}

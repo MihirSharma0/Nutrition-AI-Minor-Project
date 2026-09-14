@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../../../api/axios';
+import { Html5Qrcode } from 'html5-qrcode';
 
 const AiImageAnalyzer = () => {
     const [inputType, setInputType] = useState('FOOD_IMAGE'); // FOOD_IMAGE, INGREDIENT_LABEL, NUTRITION_LABEL, BARCODE
@@ -13,6 +14,10 @@ const AiImageAnalyzer = () => {
     const [analysis, setAnalysis] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    // Camera Scanner States
+    const [isCameraScanning, setIsCameraScanning] = useState(false);
+    const scannerRef = useRef(null);
 
     useEffect(() => {
         // Fetch user profile to pre-fill allergies
@@ -30,6 +35,54 @@ const AiImageAnalyzer = () => {
         };
         fetchProfile();
     }, []);
+
+    // Handle Camera Scanner Lifecycle
+    useEffect(() => {
+        let html5QrcodeScanner = null;
+
+        if (isCameraScanning) {
+            html5QrcodeScanner = new Html5Qrcode("barcode-camera-viewport");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 160 }
+                },
+                (decodedText) => {
+                    setBarcode(decodedText);
+                    stopCameraScanner(html5QrcodeScanner);
+                },
+                (errorMessage) => {
+                    // scanning...
+                }
+            ).catch(err => {
+                console.error("Camera access error:", err);
+                setErrorMsg("Could not access camera. Please verify camera permissions in your browser.");
+                setIsCameraScanning(false);
+            });
+            scannerRef.current = html5QrcodeScanner;
+        }
+
+        return () => {
+            if (scannerRef.current && scannerRef.current.isScanning) {
+                scannerRef.current.stop().catch(console.error);
+            }
+        };
+    }, [isCameraScanning]);
+
+    const stopCameraScanner = (scannerInstance) => {
+        const scanner = scannerInstance || scannerRef.current;
+        if (scanner && scanner.isScanning) {
+            scanner.stop().then(() => {
+                setIsCameraScanning(false);
+            }).catch(err => {
+                console.error("Error stopping scanner:", err);
+                setIsCameraScanning(false);
+            });
+        } else {
+            setIsCameraScanning(false);
+        }
+    };
 
     const handleAddAllergy = (e) => {
         if (e.key === 'Enter' && customAllergies.trim()) {
@@ -59,7 +112,7 @@ const AiImageAnalyzer = () => {
     };
 
     const analyzeFood = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setLoading(true);
         setErrorMsg('');
         setAnalysis(null);
@@ -97,16 +150,24 @@ const AiImageAnalyzer = () => {
         <div className="w-full max-w-6xl mx-auto pb-16 space-y-8">
             {/* Header Title */}
             <div>
-                <div className="flex items-center gap-3 mb-2">
-                    <span className="p-2.5 rounded-2xl bg-[#a5d391]/10 text-[#a5d391] border border-[#a5d391]/20 backdrop-blur-md">
-                        <span className="material-symbols-outlined text-2xl">center_focus_strong</span>
-                    </span>
-                    <h1 className="text-3xl font-bold font-hero-display tracking-tight text-white">
-                        AI Food & Label Analyzer
-                    </h1>
+                <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
+                    <div className="flex items-center gap-3">
+                        <span className="p-2.5 rounded-2xl bg-[#a5d391]/10 text-[#a5d391] border border-[#a5d391]/20 backdrop-blur-md">
+                            <span className="material-symbols-outlined text-2xl">center_focus_strong</span>
+                        </span>
+                        <h1 className="text-3xl font-bold font-hero-display tracking-tight text-white">
+                            AI Food & Label Analyzer
+                        </h1>
+                    </div>
+
+                    {/* Gemma AI Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 via-[#a5d391]/20 to-blue-500/20 border border-[#a5d391]/30 text-white text-xs font-bold shadow-lg">
+                        <span className="material-symbols-outlined text-purple-300 text-base">auto_awesome</span>
+                        <span>Gemma AI Vision & OCR Engine</span>
+                    </div>
                 </div>
-                <p className="text-white/60 text-sm font-body-md max-w-2xl">
-                    Scan food dishes, ingredient lists, nutrition panels, or barcodes for instant AI-driven allergen matching, additive detection, and health verdict classification.
+                <p className="text-white/60 text-sm font-body-md max-w-3xl">
+                    Powered by Google Gemma AI vision model. Scan food dishes, ingredient labels, nutrition panels, or use live camera barcode scanning for instant allergen matching, additive safety, and health verdicts.
                 </p>
             </div>
 
@@ -118,7 +179,7 @@ const AiImageAnalyzer = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-1.5 bg-[#080b12]/80 rounded-2xl border border-white/10">
                     <button
                         type="button"
-                        onClick={() => { setInputType('FOOD_IMAGE'); setErrorMsg(''); }}
+                        onClick={() => { setInputType('FOOD_IMAGE'); setErrorMsg(''); setIsCameraScanning(false); }}
                         className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${inputType === 'FOOD_IMAGE' ? 'bg-[#a5d391] text-black shadow-lg shadow-[#a5d391]/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
                     >
                         <span className="material-symbols-outlined text-lg">photo_camera</span>
@@ -126,15 +187,15 @@ const AiImageAnalyzer = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => { setInputType('INGREDIENT_LABEL'); setErrorMsg(''); }}
+                        onClick={() => { setInputType('INGREDIENT_LABEL'); setErrorMsg(''); setIsCameraScanning(false); }}
                         className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${inputType === 'INGREDIENT_LABEL' ? 'bg-[#a5d391] text-black shadow-lg shadow-[#a5d391]/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
                     >
                         <span className="material-symbols-outlined text-lg">receipt_long</span>
-                        <span>Ingredients</span>
+                        <span>Ingredients OCR</span>
                     </button>
                     <button
                         type="button"
-                        onClick={() => { setInputType('NUTRITION_LABEL'); setErrorMsg(''); }}
+                        onClick={() => { setInputType('NUTRITION_LABEL'); setErrorMsg(''); setIsCameraScanning(false); }}
                         className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${inputType === 'NUTRITION_LABEL' ? 'bg-[#a5d391] text-black shadow-lg shadow-[#a5d391]/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
                     >
                         <span className="material-symbols-outlined text-lg">analytics</span>
@@ -146,7 +207,7 @@ const AiImageAnalyzer = () => {
                         className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${inputType === 'BARCODE' ? 'bg-[#a5d391] text-black shadow-lg shadow-[#a5d391]/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
                     >
                         <span className="material-symbols-outlined text-lg">barcode_scanner</span>
-                        <span>Barcode Scan</span>
+                        <span>Barcode Scanner</span>
                     </button>
                 </div>
 
@@ -158,7 +219,7 @@ const AiImageAnalyzer = () => {
                                 <label className="flex-grow w-full cursor-pointer flex flex-col items-center justify-center p-6 border-2 border-dashed border-white/20 hover:border-[#a5d391]/60 bg-[#080b12]/60 rounded-2xl transition-all group">
                                     <span className="material-symbols-outlined text-4xl text-[#a5d391] group-hover:scale-110 transition-transform mb-2">cloud_upload</span>
                                     <span className="text-sm font-bold text-white mb-1">Click or drag image file here</span>
-                                    <span className="text-xs text-white/40">Supports JPG, PNG, WEBP (Dish photo, Label OCR scan)</span>
+                                    <span className="text-xs text-white/40">Gemma AI analyzes food photo or label OCR scan</span>
                                     <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
                                 </label>
 
@@ -179,7 +240,7 @@ const AiImageAnalyzer = () => {
                                 </div>
                             </div>
 
-                            {/* Sample presets for quick testing */}
+                            {/* Sample presets */}
                             <div className="flex flex-wrap items-center gap-2 pt-2">
                                 <span className="text-xs text-white/50 font-bold">Quick Presets:</span>
                                 <button type="button" onClick={() => applySamplePhoto('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80')} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#a5d391]/20 hover:text-[#a5d391] border border-white/10 text-white/70 transition-all cursor-pointer">
@@ -200,12 +261,49 @@ const AiImageAnalyzer = () => {
                         </div>
                     )}
 
-                    {/* Mode 4: Barcode Scanner */}
+                    {/* Mode 4: Live Camera Barcode Scanner */}
                     {inputType === 'BARCODE' && (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
+                            {/* Live Camera Scanner Box */}
+                            {isCameraScanning ? (
+                                <div className="flex flex-col items-center justify-center p-6 bg-[#080b12]/90 rounded-3xl border-2 border-[#a5d391]/40 space-y-4 shadow-2xl">
+                                    <div className="flex items-center justify-between w-full max-w-md">
+                                        <div className="flex items-center gap-2 text-[#a5d391] font-bold text-sm">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-[#a5d391] animate-ping"></span>
+                                            <span>Live Camera Scanning Active</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => stopCameraScanner()}
+                                            className="px-3 py-1.5 rounded-xl bg-red-500/20 text-red-300 text-xs font-bold hover:bg-red-500/30 cursor-pointer"
+                                        >
+                                            Close Camera
+                                        </button>
+                                    </div>
+                                    <div id="barcode-camera-viewport" className="w-full max-w-md aspect-square sm:aspect-video rounded-2xl overflow-hidden border border-white/20 bg-black"></div>
+                                    <p className="text-xs text-white/60">Position product barcode inside the scanning frame.</p>
+                                </div>
+                            ) : (
+                                <div className="p-6 bg-[#080b12]/60 rounded-3xl border border-white/10 flex flex-col items-center justify-center text-center space-y-4">
+                                    <span className="material-symbols-outlined text-4xl text-[#a5d391]">linked_camera</span>
+                                    <div>
+                                        <h3 className="text-base font-bold text-white">Live Camera Barcode Reader</h3>
+                                        <p className="text-xs text-white/50 max-w-md mt-1">Use your device camera to scan physical product barcodes (EAN-13, UPC, QR codes).</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCameraScanning(true)}
+                                        className="px-6 py-3 bg-[#a5d391]/20 hover:bg-[#a5d391] text-[#a5d391] hover:text-black border border-[#a5d391]/40 font-bold text-sm rounded-2xl transition-all shadow-lg cursor-pointer flex items-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined">videocam</span>
+                                        <span>Start Camera Barcode Scan</span>
+                                    </button>
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-xs font-bold text-[#a5d391] uppercase tracking-wider mb-2">
-                                    Scan or Enter Barcode Number (EAN/UPC)
+                                    Or Enter Barcode Number (EAN/UPC) Manually
                                 </label>
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">barcode_scanner</span>
@@ -274,7 +372,7 @@ const AiImageAnalyzer = () => {
                         {loading ? (
                             <>
                                 <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                                <span>Running AI Vision & OCR Analysis...</span>
+                                <span>Running Gemma AI Vision & OCR Analysis...</span>
                             </>
                         ) : (
                             <>
