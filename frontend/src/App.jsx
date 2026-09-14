@@ -32,8 +32,7 @@ import AiChat from './pages/Dashboard/User/AiChat';
 import AiDietGenerator from './pages/Dashboard/User/AiDietGenerator';
 import AiImageAnalyzer from './pages/Dashboard/User/AiImageAnalyzer';
 
-// Dietitian Dashboard Layout & Pages
-import DietitianDashboardLayout from './layouts/DietitianDashboardLayout';
+// Nutritionist Dashboard Layout & Pages
 import DietitianHome from './pages/Dashboard/Dietitian/DietitianHome';
 import ClientManagement from './pages/Dashboard/Dietitian/ClientManagement';
 import DietPlanBuilder from './pages/Dashboard/Dietitian/DietPlanBuilder';
