@@ -31,4 +31,13 @@ public class AiController {
         String analysis = aiService.analyzeFoodImage(request.get("imageUrl"));
         return ResponseEntity.ok(Map.of("analysis", analysis));
     }
+
+    @PostMapping("/analyze-food")
+    public ResponseEntity<com.nutrition.dto.FoodAnalysisResponseDto> analyzeFood(
+            @RequestBody com.nutrition.dto.FoodAnalysisRequestDto request,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.nutrition.security.CustomUserDetails userDetails) {
+        String email = userDetails != null ? userDetails.getUsername() : null;
+        com.nutrition.dto.FoodAnalysisResponseDto response = aiService.analyzeFood(request, email);
+        return ResponseEntity.ok(response);
+    }
 }
