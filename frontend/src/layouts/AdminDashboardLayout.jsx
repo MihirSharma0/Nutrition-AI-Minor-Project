@@ -71,9 +71,9 @@ const AdminDashboardLayout = () => {
                 </nav>
 
                 <div className="p-4 border-t border-white/10">
-                    <button onClick={handleLogout} className="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors w-full text-left cursor-pointer">
+                    <button onClick={handleLogout} className="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors w-full text-left cursor-pointer">
                         <span className="material-symbols-outlined text-[20px]">logout</span>
-                        Terminate Session
+                        <span>Logout</span>
                     </button>
                 </div>
             </aside>
@@ -92,13 +92,21 @@ const AdminDashboardLayout = () => {
                         <h2 className="text-xl font-bold font-hero-display tracking-wide hidden sm:block">NutriMunch <span className={`${accentColor} italic`}>Admin</span></h2>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4 sm:gap-6">
                         <button className="relative text-white/60 hover:text-white transition-colors bg-white/5 w-10 h-10 rounded-full flex items-center justify-center border border-white/10 hover:border-white/30 backdrop-blur-md">
                             <span className="material-symbols-outlined text-sm">notifications</span>
                             <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#a5d391] rounded-full border-2 border-[#080b12] shadow-[0_0_6px_rgba(165,211,145,0.8)]"></span>
                         </button>
+
+                        <button 
+                            onClick={handleLogout} 
+                            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors cursor-pointer"
+                            title="Logout"
+                        >
+                            <span className="material-symbols-outlined text-xl">logout</span>
+                        </button>
                         
-                        <Link to="/dashboard/admin/profile" className="flex items-center gap-3 pl-6 border-l border-white/10 cursor-pointer group">
+                        <Link to="/dashboard/admin/profile" className="flex items-center gap-3 pl-3 sm:pl-6 border-l border-white/10 cursor-pointer group">
                             <div className="text-right hidden sm:block">
                                 <div className={`text-sm font-bold text-white group-hover:${accentColor} transition-colors`}>System Admin</div>
                                 <div className="text-[10px] text-[#a5d391] uppercase tracking-widest font-black">God Mode</div>
@@ -120,7 +128,7 @@ const AdminDashboardLayout = () => {
             {isSidebarOpen && (
                 <div className="fixed inset-0 z-50 lg:hidden flex">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}></div>
-                    <aside className="w-72 bg-[#080b12] border-r border-white/10 relative z-10 flex flex-col">
+                    <aside className="w-72 bg-[#080b12] border-r border-white/10 relative z-10 flex flex-col h-full">
                         <div className="p-6 flex justify-between items-center border-b border-white/10">
                             <span className="text-xl font-hero-display font-bold text-white">Menu</span>
                             <button onClick={() => setIsSidebarOpen(false)} className="text-white/50 hover:text-white">
@@ -143,6 +151,18 @@ const AdminDashboardLayout = () => {
                                 )
                             })}
                         </nav>
+                        <div className="p-4 border-t border-white/10">
+                            <button 
+                                onClick={() => {
+                                    setIsSidebarOpen(false);
+                                    handleLogout();
+                                }} 
+                                className="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-red-400 hover:bg-red-500/10 transition-colors w-full text-left cursor-pointer"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">logout</span>
+                                Logout
+                            </button>
+                        </div>
                     </aside>
                 </div>
             )}
