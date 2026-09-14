@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.http.HttpMethod;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,10 +114,15 @@ public class AiService {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
+        Map<String, Object> offProduct = null;
+        if ("BARCODE".equalsIgnoreCase(request.getInputType()) && request.getBarcode() != null && !request.getBarcode().trim().isEmpty()) {
+            offProduct = fetchOpenFoodFactsProduct(request.getBarcode().trim());
+        }
+
         // 1. Try Gemma Model for Vision & OCR Analysis
         if (!"mock-key".equals(gemmaApiKey) && gemmaApiKey != null && !gemmaApiKey.isBlank()) {
             try {
-                return callGemmaApiForOCR(request, userAllergiesList, userDietType);
+                return callGemmaApiForOCR(request, userAllergiesList, userDietType, offProduct);
             } catch (Exception e) {
                 System.err.println("Gemma Model OCR/Vision call failed: " + e.getMessage() + ". Falling back to secondary engine.");
                 e.printStackTrace();
@@ -132,19 +139,69 @@ public class AiService {
         }
 
         // 3. Robust local OCR & Rule-based fallback engine
-        return performRuleBasedAnalysis(request, userAllergiesList, userDietType);
+        return performRuleBasedAnalysis(request, userAllergiesList, userDietType, offProduct);
     }
 
-    private FoodAnalysisResponseDto callGemmaApiForOCR(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType) throws Exception {
+    public Map<String, Object> fetchOpenFoodFactsProduct(String barcode) {
+        if (barcode == null || barcode.trim().isEmpty()) return null;
+        String cleanBarcode = barcode.trim();
+        String url = "https://world.openfoodfacts.org/api/v2/product/" + cleanBarcode + ".json";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "NutritionAIApp/1.0 (contact@nutritionai.com)");
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Map body = response.getBody();
+                Object statusObj = body.get("status");
+                if (statusObj != null && (statusObj.equals(1) || "1".equals(statusObj.toString()))) {
+                    Map<String, Object> product = (Map<String, Object>) body.get("product");
+                    if (product != null) return product;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("OpenFoodFacts API lookup failed for barcode " + cleanBarcode + ": " + e.getMessage());
+        }
+        return null;
+    }
+
+    private FoodAnalysisResponseDto callGemmaApiForOCR(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType, Map<String, Object> offProduct) throws Exception {
         String url = "https://generativelanguage.googleapis.com/v1beta/models/" + gemmaModel + ":generateContent?key=" + gemmaApiKey;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-goog-api-key", gemmaApiKey);
 
+        StringBuilder contextDetails = new StringBuilder();
+        if (offProduct != null) {
+            contextDetails.append("Retrieved OpenFoodFacts database entry for scanned barcode (").append(request.getBarcode()).append("):\n");
+            if (offProduct.containsKey("product_name")) contextDetails.append("Product Name: ").append(offProduct.get("product_name")).append("\n");
+            if (offProduct.containsKey("brands")) contextDetails.append("Brand: ").append(offProduct.get("brands")).append("\n");
+            if (offProduct.containsKey("categories")) contextDetails.append("Category: ").append(offProduct.get("categories")).append("\n");
+            if (offProduct.containsKey("serving_size")) contextDetails.append("Serving Size: ").append(offProduct.get("serving_size")).append("\n");
+            if (offProduct.containsKey("ingredients_text_en")) contextDetails.append("Ingredients: ").append(offProduct.get("ingredients_text_en")).append("\n");
+            else if (offProduct.containsKey("ingredients_text")) contextDetails.append("Ingredients: ").append(offProduct.get("ingredients_text")).append("\n");
+            if (offProduct.containsKey("additives_tags")) contextDetails.append("Additives: ").append(offProduct.get("additives_tags")).append("\n");
+            if (offProduct.containsKey("nutriments")) contextDetails.append("Nutriments: ").append(offProduct.get("nutriments")).append("\n");
+        } else {
+            String code = request.getBarcode() != null ? request.getBarcode().trim() : "";
+            contextDetails.append("Scanned Barcode GTIN Code: ").append(code).append("\n");
+            contextDetails.append("Note: If the barcode starts with 890, it is an Indian GTIN food product barcode (EAN-13). For example, 8901030932076 is Maggi 2-Minute Masala Noodles (Nestlé India), 8904104752266 is Turmeric Powder, 8901262150477 is Amul Milk, 8901491 is Lay's Magic Masala Chips, 8901719 is Parle-G Biscuits. Recognize or infer the exact product name, brand, ingredients, and nutrition macros for this barcode code. Do NOT return generic placeholder titles.");
+        }
+
         String prompt = String.format("""
-            You are Gemma AI, an expert vision OCR and food analysis model. Analyze this food input (%s): %s.
+            You are Gemma AI, an expert vision OCR and food analysis model. Analyze this food input (%s).
+            %s
             User Profile Allergies: %s. User Diet Preference: %s.
-            Extract product details, ingredients, additives, nutrition macros/micros, and check against user allergies.
+
+            Perform clinical nutrition analysis:
+            1. Extract or confirm product details, ingredients, additives, nutrition macros (calories, protein, carbs, fat, fiber, sugar, sodium).
+            2. Cross-match ingredients against the user's recorded allergies (%s).
+            3. Detect synthetic or harmful additives (E-numbers, preservatives, artificial sweeteners/colors).
+            4. Assign final verdict: SAFE (no allergen match, healthy macros), CAUTION (high sugar/sodium or synthetic additives), or AVOID (direct allergen conflict or dangerous ingredient).
+            5. Provide a plain-language explanation of the verdict.
+
             Return ONLY a valid JSON object matching this schema without any markdown formatting or extra commentary:
             {
               "productName": "string",
@@ -159,7 +216,7 @@ public class AiService {
               "nutrition": {"calories": 300, "proteinG": 10.0, "carbsG": 30.0, "fatG": 8.0, "fiberG": 4.0, "sugarG": 5.0, "sodiumMg": 200.0, "micronutrients": {"Iron": "2mg"}},
               "betterAlternatives": [{"id": 1, "title": "Alt Title", "description": "desc", "calories": 250, "proteinG": 15.0, "carbsG": 20.0, "fatG": 5.0, "imageUrl": "url", "whyBetter": "why"}]
             }
-            """, request.getInputType(), request.getImageUrl() != null ? request.getImageUrl() : request.getBarcode(), userAllergies, dietType);
+            """, request.getInputType(), contextDetails.toString(), userAllergies, dietType, userAllergies);
 
         List<Map<String, Object>> parts = new ArrayList<>();
         parts.add(Map.of("text", prompt));
@@ -174,7 +231,14 @@ public class AiService {
         }
 
         Map<String, Object> contentMap = Map.of("parts", parts);
-        Map<String, Object> body = Map.of("contents", List.of(contentMap));
+        Map<String, Object> generationConfig = Map.of(
+            "response_mime_type", "application/json",
+            "temperature", 0.2
+        );
+        Map<String, Object> body = Map.of(
+            "contents", List.of(contentMap),
+            "generationConfig", generationConfig
+        );
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
@@ -189,12 +253,16 @@ public class AiService {
 
         StringBuilder fullText = new StringBuilder();
         for (Map<String, Object> part : resParts) {
+            if (part.containsKey("thought") && Boolean.TRUE.equals(part.get("thought"))) {
+                continue;
+            }
             if (part.containsKey("text")) {
                 fullText.append(part.get("text")).append("\n");
             }
         }
 
-        String rawText = fullText.toString().replaceAll("```json", "").replaceAll("```", "").trim();
+        String rawText = fullText.toString().trim();
+        rawText = rawText.replaceAll("```json", "").replaceAll("```", "").trim();
         int firstBrace = rawText.indexOf("{");
         int lastBrace = rawText.lastIndexOf("}");
         if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
@@ -225,7 +293,7 @@ public class AiService {
         }
     }
 
-    private FoodAnalysisResponseDto performRuleBasedAnalysis(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType) {
+    private FoodAnalysisResponseDto performRuleBasedAnalysis(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType, Map<String, Object> offProduct) {
         String inputType = request.getInputType() != null ? request.getInputType().toUpperCase() : "FOOD_IMAGE";
         
         String productName;
@@ -237,7 +305,154 @@ public class AiService {
 
         if ("BARCODE".equals(inputType)) {
             String code = request.getBarcode() != null ? request.getBarcode().trim() : "";
-            if (code.equals("8901030700012") || code.contains("012")) {
+            if (offProduct != null) {
+                String rawName = offProduct.containsKey("product_name") && offProduct.get("product_name") != null ? offProduct.get("product_name").toString()
+                        : (offProduct.containsKey("product_name_en") && offProduct.get("product_name_en") != null ? offProduct.get("product_name_en").toString() : "Scanned Barcode Product (" + code + ")");
+                if (offProduct.containsKey("brands") && offProduct.get("brands") != null && !offProduct.get("brands").toString().isBlank()) {
+                    productName = offProduct.get("brands").toString() + " - " + rawName;
+                } else {
+                    productName = rawName;
+                }
+                category = offProduct.containsKey("categories") && offProduct.get("categories") != null ? offProduct.get("categories").toString() : "Packaged Barcode Product";
+                servingSize = offProduct.containsKey("serving_size") && offProduct.get("serving_size") != null ? offProduct.get("serving_size").toString() : "1 Serving";
+
+                String ingText = offProduct.containsKey("ingredients_text_en") && offProduct.get("ingredients_text_en") != null ? offProduct.get("ingredients_text_en").toString()
+                        : (offProduct.containsKey("ingredients_text") && offProduct.get("ingredients_text") != null ? offProduct.get("ingredients_text").toString() : "");
+                if (!ingText.isBlank()) {
+                    ingredients = Arrays.stream(ingText.split("[,;.]"))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty() && s.length() < 80)
+                            .collect(Collectors.toList());
+                } else {
+                    ingredients = List.of("Package Ingredient Info Not Listed");
+                }
+
+                Map nutriments = offProduct.containsKey("nutriments") && offProduct.get("nutriments") instanceof Map ? (Map) offProduct.get("nutriments") : Collections.emptyMap();
+                double cal = getDoubleFromMap(nutriments, "energy-kcal_100g", "energy-kcal_serving", "energy-kcal");
+                double pro = getDoubleFromMap(nutriments, "proteins_100g", "proteins_serving", "proteins");
+                double carb = getDoubleFromMap(nutriments, "carbohydrates_100g", "carbohydrates_serving", "carbohydrates");
+                double fat = getDoubleFromMap(nutriments, "fat_100g", "fat_serving", "fat");
+                double fib = getDoubleFromMap(nutriments, "fiber_100g", "fiber_serving", "fiber");
+                double sug = getDoubleFromMap(nutriments, "sugars_100g", "sugars_serving", "sugars");
+                double sod = getDoubleFromMap(nutriments, "sodium_100g", "sodium_serving", "sodium") * 1000.0;
+
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories((int) cal)
+                        .proteinG(pro)
+                        .carbsG(carb)
+                        .fatG(fat)
+                        .fiberG(fib)
+                        .sugarG(sug)
+                        .sodiumMg(sod)
+                        .micronutrients(Map.of("Source", "OpenFoodFacts Global Barcode API"))
+                        .build();
+
+                List addTags = offProduct.containsKey("additives_tags") && offProduct.get("additives_tags") instanceof List ? (List) offProduct.get("additives_tags") : null;
+                if (addTags != null) {
+                    for (Object tag : addTags) {
+                        String addName = tag.toString().replace("en:", "").toUpperCase();
+                        additives.add(FoodAnalysisResponseDto.AdditiveInfo.builder()
+                                .name(addName)
+                                .category("Food Additive")
+                                .riskLevel(addName.contains("E211") || addName.contains("E250") ? "HIGH" : "MODERATE")
+                                .description("Additive code identified in product registration.")
+                                .build());
+                    }
+                }
+            } else if (code.equals("8901030932076") || code.contains("932076") || code.startsWith("89010309") || code.contains("maggi")) {
+                productName = "Maggi 2-Minute Masala Instant Noodles (Nestlé)";
+                category = "Instant Noodles / Packaged Convenience Food";
+                servingSize = "1 Single Pack (70g)";
+                ingredients = List.of("Refined Wheat Flour (Maida)", "Palm Oil", "Salt", "Wheat Gluten", "Calcium Carbonate", "Acidity Regulators (E501i, E500i)", "Mixed Spices (Turmeric, Coriander, Aniseed, Cumin, Black Pepper, Ginger, Red Chilli, Clove, Nutmeg, Cardamom)", "Dehydrated Onion & Garlic", "Hydrolyzed Groundnut Protein", "Sugar", "Wheat Noodle Powder");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(310)
+                        .proteinG(6.8)
+                        .carbsG(43.5)
+                        .fatG(12.2)
+                        .fiberG(2.1)
+                        .sugarG(1.2)
+                        .sodiumMg(860.0)
+                        .micronutrients(Map.of("Calcium", "140mg (14% DV)", "Iron", "1.5mg (8% DV)"))
+                        .build();
+                additives.add(FoodAnalysisResponseDto.AdditiveInfo.builder()
+                        .name("Sodium Tripolyphosphate (E451i)")
+                        .category("Moisture Retainer / Stabilizer")
+                        .riskLevel("MODERATE")
+                        .description("Phosphate salt used to preserve dough structure and moisture.")
+                        .build());
+                additives.add(FoodAnalysisResponseDto.AdditiveInfo.builder()
+                        .name("Potassium & Sodium Carbonates (E501i / E500i)")
+                        .category("Acidity Regulator / Dough Agent")
+                        .riskLevel("LOW")
+                        .description("Traditional alkali salts used in instant noodle manufacturing.")
+                        .build());
+                additives.add(FoodAnalysisResponseDto.AdditiveInfo.builder()
+                        .name("Hydrolyzed Vegetable Protein")
+                        .category("Flavor Enhancer")
+                        .riskLevel("MODERATE")
+                        .description("Concentrated plant protein extract used for savory umami flavor.")
+                        .build());
+            } else if (code.equals("8904104752266") || code.contains("752266") || code.contains("turmeric") || code.contains("haldi")) {
+                productName = "Pure Organic Turmeric Powder (Haldi)";
+                category = "Spices & Seasonings / Essential Grocery";
+                servingSize = "1 Teaspoon (5g)";
+                ingredients = List.of("Pure Ground Turmeric Rhizome (Curcuma Longa)");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(18)
+                        .proteinG(0.5)
+                        .carbsG(3.3)
+                        .fatG(0.5)
+                        .fiberG(1.1)
+                        .sugarG(0.2)
+                        .sodiumMg(2.0)
+                        .micronutrients(Map.of("Curcumin", "3.5% (Active Antioxidant)", "Iron", "2.1mg (12% DV)", "Manganese", "0.4mg (20% DV)"))
+                        .build();
+            } else if (code.equals("8901262150477") || code.contains("1262150")) {
+                productName = "Amul Pure Toned Milk / Fresh Dairy";
+                category = "Dairy & Beverages / Fresh Milk";
+                servingSize = "1 Glass (200ml)";
+                ingredients = List.of("Pasteurized Toned Milk", "Vitamin A", "Vitamin D2");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(118)
+                        .proteinG(6.2)
+                        .carbsG(9.4)
+                        .fatG(6.0)
+                        .fiberG(0.0)
+                        .sugarG(9.4)
+                        .sodiumMg(100.0)
+                        .micronutrients(Map.of("Calcium", "240mg (24% DV)", "Vitamin A", "150mcg", "Vitamin D", "1.5mcg"))
+                        .build();
+            } else if (code.startsWith("8901491")) {
+                productName = "Lay's India's Magic Masala Potato Chips (PepsiCo)";
+                category = "Packaged Potato Chips / Crispy Snack";
+                servingSize = "1 Small Bag (30g)";
+                ingredients = List.of("Potatoes", "Edible Vegetable Oil (Palmolein)", "Spices & Condiments (Onion Powder, Chilli Powder, Dry Mango Powder, Coriander Powder, Ginger Powder, Garlic Powder, Black Pepper, Turmeric)", "Salt", "Sugar");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(162)
+                        .proteinG(2.1)
+                        .carbsG(15.6)
+                        .fatG(10.2)
+                        .fiberG(1.2)
+                        .sugarG(0.8)
+                        .sodiumMg(210.0)
+                        .micronutrients(Map.of("Potassium", "280mg"))
+                        .build();
+            } else if (code.startsWith("8901719")) {
+                productName = "Parle-G Original Wheat Glucose Biscuits";
+                category = "Packaged Biscuits & Bakery";
+                servingSize = "1 Pack (50g / 8 Biscuits)";
+                ingredients = List.of("Refined Wheat Flour (Maida)", "Sugar", "Refined Palm Oil", "Invert Sugar Syrup", "Leavening Agents (E503ii, E500ii)", "Salt", "Milk Solids", "Emulsifier (E322)");
+                nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
+                        .calories(225)
+                        .proteinG(3.3)
+                        .carbsG(38.5)
+                        .fatG(6.7)
+                        .fiberG(1.0)
+                        .sugarG(13.0)
+                        .sodiumMg(110.0)
+                        .micronutrients(Map.of("Iron", "0.8mg"))
+                        .build();
+            } else if (code.equals("8901030700012")) {
                 productName = "Nutri-Crunch Oat & Honey Bar with Almonds";
                 category = "Packaged Snack / Granola Bar";
                 servingSize = "1 Bar (50g)";
@@ -264,7 +479,7 @@ public class AiService {
                         .riskLevel("HIGH")
                         .description("Refined sweetener linked to rapid blood sugar spikes.")
                         .build());
-            } else if (code.equals("012000800001") || code.contains("sugar") || code.contains("cola")) {
+            } else if (code.equals("012000800001")) {
                 productName = "Sparkling Sugar-Free Citrus Soda";
                 category = "Beverages / Carbonated Drink";
                 servingSize = "1 Can (355ml)";
@@ -292,26 +507,21 @@ public class AiService {
                         .description("Synthetic azo dye added for vibrant red coloring.")
                         .build());
             } else {
-                productName = "Whole Grain Wheat & Peanut Butter Snack Bites (Barcode: " + (code.isEmpty() ? "Scanned Product" : code) + ")";
-                category = "Packaged Healthy Snack";
-                servingSize = "1 Pack (60g)";
-                ingredients = List.of("Whole Wheat Flour", "Peanuts", "Peanut Butter", "Cane Sugar", "Milk Solids", "Sea Salt", "Tocopherols (E306)");
+                String prefixLabel = code.startsWith("890") ? "Scanned Indian Grocery Pack" : "Scanned Packaged Product";
+                productName = prefixLabel + " (Barcode: " + (code.isEmpty() ? "Unknown" : code) + ")";
+                category = "Packaged Grocery Item";
+                servingSize = "1 Serving (100g)";
+                ingredients = List.of("Natural Packaged Product Ingredients");
                 nutrition = FoodAnalysisResponseDto.NutritionInfo.builder()
-                        .calories(280)
-                        .proteinG(10.0)
-                        .carbsG(28.0)
-                        .fatG(14.0)
-                        .fiberG(4.0)
-                        .sugarG(9.0)
-                        .sodiumMg(210.0)
-                        .micronutrients(Map.of("Magnesium", "45mg (11% DV)", "Potassium", "220mg (6% DV)"))
+                        .calories(210)
+                        .proteinG(6.0)
+                        .carbsG(25.0)
+                        .fatG(8.0)
+                        .fiberG(3.0)
+                        .sugarG(4.0)
+                        .sodiumMg(180.0)
+                        .micronutrients(Map.of("Source", "GTIN Barcode Analysis"))
                         .build();
-                additives.add(FoodAnalysisResponseDto.AdditiveInfo.builder()
-                        .name("Tocopherols (E306)")
-                        .category("Preservative / Antioxidant")
-                        .riskLevel("LOW")
-                        .description("Natural Vitamin E derivative used as an antioxidant preservative.")
-                        .build());
             }
         } else if ("INGREDIENT_LABEL".equals(inputType)) {
             productName = "Scanned Package Ingredient List";
@@ -627,5 +837,17 @@ public class AiService {
             System.err.println("Error calling OpenAI: " + e.getMessage());
             return "Error generating AI response.";
         }
+    }
+
+    private double getDoubleFromMap(Map map, String... keys) {
+        if (map == null) return 0.0;
+        for (String key : keys) {
+            if (map.containsKey(key) && map.get(key) != null) {
+                try {
+                    return Double.parseDouble(map.get(key).toString());
+                } catch (Exception ignored) {}
+            }
+        }
+        return 0.0;
     }
 }
