@@ -427,4 +427,4 @@ All authenticated requests carry `Authorization: Bearer <JWT>`. All admin routes
 11. Analytics & Dashboard
 12. Admin Panel (full back-office)
 
----
+----
