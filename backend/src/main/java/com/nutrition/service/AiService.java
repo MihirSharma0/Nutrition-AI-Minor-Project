@@ -174,8 +174,11 @@ public class AiService {
         headers.set("x-goog-api-key", gemmaApiKey);
 
         StringBuilder contextDetails = new StringBuilder();
+        if (request.getBarcode() != null && !request.getBarcode().isBlank()) {
+            contextDetails.append("Scanned Product Barcode Code: ").append(request.getBarcode().trim()).append("\n");
+        }
         if (offProduct != null) {
-            contextDetails.append("Retrieved OpenFoodFacts database entry for scanned barcode (").append(request.getBarcode()).append("):\n");
+            contextDetails.append("Retrieved OpenFoodFacts Entry:\n");
             if (offProduct.containsKey("product_name")) contextDetails.append("Product Name: ").append(offProduct.get("product_name")).append("\n");
             if (offProduct.containsKey("brands")) contextDetails.append("Brand: ").append(offProduct.get("brands")).append("\n");
             if (offProduct.containsKey("categories")) contextDetails.append("Category: ").append(offProduct.get("categories")).append("\n");
@@ -184,23 +187,21 @@ public class AiService {
             else if (offProduct.containsKey("ingredients_text")) contextDetails.append("Ingredients: ").append(offProduct.get("ingredients_text")).append("\n");
             if (offProduct.containsKey("additives_tags")) contextDetails.append("Additives: ").append(offProduct.get("additives_tags")).append("\n");
             if (offProduct.containsKey("nutriments")) contextDetails.append("Nutriments: ").append(offProduct.get("nutriments")).append("\n");
-        } else {
-            String code = request.getBarcode() != null ? request.getBarcode().trim() : "";
-            contextDetails.append("Scanned Barcode GTIN Code: ").append(code).append("\n");
-            contextDetails.append("Note: If the barcode starts with 890, it is an Indian GTIN food product barcode (EAN-13). For example, 8901030932076 is Maggi 2-Minute Masala Noodles (Nestlé India), 8904104752266 is Turmeric Powder, 8901262150477 is Amul Milk, 8901491 is Lay's Magic Masala Chips, 8901719 is Parle-G Biscuits. Recognize or infer the exact product name, brand, ingredients, and nutrition macros for this barcode code. Do NOT return generic placeholder titles.");
         }
 
         String prompt = String.format("""
-            You are Gemma AI, an expert vision OCR and food analysis model. Analyze this food input (%s).
+            You are Gemma AI, an expert vision OCR, barcode recognition, and food analysis model.
+            Input Type: %s.
             %s
             User Profile Allergies: %s. User Diet Preference: %s.
 
             Perform clinical nutrition analysis:
-            1. Extract or confirm product details, ingredients, additives, nutrition macros (calories, protein, carbs, fat, fiber, sugar, sodium).
-            2. Cross-match ingredients against the user's recorded allergies (%s).
-            3. Detect synthetic or harmful additives (E-numbers, preservatives, artificial sweeteners/colors).
-            4. Assign final verdict: SAFE (no allergen match, healthy macros), CAUTION (high sugar/sodium or synthetic additives), or AVOID (direct allergen conflict or dangerous ingredient).
-            5. Provide a plain-language explanation of the verdict.
+            1. If input is a barcode code (%s), recognize or identify the food product name, brand, category, ingredients, and nutrition macros using your knowledge of global GTIN/EAN barcodes.
+            2. Extract product details, ingredients, additives, and nutrition macros (calories, protein, carbs, fat, fiber, sugar, sodium).
+            3. Cross-match ingredients against user's recorded allergies (%s).
+            4. Detect synthetic or harmful additives (E-numbers, preservatives, artificial sweeteners/colors).
+            5. Assign final verdict: SAFE (no allergen match, healthy macros), CAUTION (high sugar/sodium or synthetic additives), or AVOID (direct allergen conflict or dangerous ingredient).
+            6. Provide a plain-language explanation of the verdict.
 
             Return ONLY a valid JSON object matching this schema without any markdown formatting or extra commentary:
             {
@@ -216,7 +217,7 @@ public class AiService {
               "nutrition": {"calories": 300, "proteinG": 10.0, "carbsG": 30.0, "fatG": 8.0, "fiberG": 4.0, "sugarG": 5.0, "sodiumMg": 200.0, "micronutrients": {"Iron": "2mg"}},
               "betterAlternatives": [{"id": 1, "title": "Alt Title", "description": "desc", "calories": 250, "proteinG": 15.0, "carbsG": 20.0, "fatG": 5.0, "imageUrl": "url", "whyBetter": "why"}]
             }
-            """, request.getInputType(), contextDetails.toString(), userAllergies, dietType, userAllergies);
+            """, request.getInputType(), contextDetails.toString(), userAllergies, dietType, request.getBarcode(), userAllergies);
 
         List<Map<String, Object>> parts = new ArrayList<>();
         parts.add(Map.of("text", prompt));
