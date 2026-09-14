@@ -28,6 +28,12 @@ public class AiService {
     @Value("${openai.api.key:mock-key}")
     private String apiKey;
 
+    @Value("${gemma.api.key:mock-key}")
+    private String gemmaApiKey;
+
+    @Value("${gemma.api.model:gemini-3.6-flash}")
+    private String gemmaModel;
+
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final RecipeRepository recipeRepository;
@@ -37,26 +43,46 @@ public class AiService {
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     public String generateDietPlan(String goals, String allergies) {
-        if ("mock-key".equals(apiKey)) {
-            return "Mock AI Diet Plan: Based on your goals (" + goals + ") and allergies (" + allergies + "), eat more greens and lean proteins. This is a mock response because the OpenAI API key is missing.";
+        if (!"mock-key".equals(gemmaApiKey) && gemmaApiKey != null && !gemmaApiKey.isBlank()) {
+            try {
+                return callGemmaText("Create a 1-day diet plan for a user with goals: " + goals + ", and allergies: " + allergies);
+            } catch (Exception e) {
+                System.err.println("Gemma API call failed for diet plan: " + e.getMessage());
+            }
         }
-        
-        String prompt = String.format("Create a 1-day diet plan for a user with goals: %s, and allergies: %s.", goals, allergies);
-        return callOpenAi(prompt);
+        if (!"mock-key".equals(apiKey)) {
+            String prompt = String.format("Create a 1-day diet plan for a user with goals: %s, and allergies: %s.", goals, allergies);
+            return callOpenAi(prompt);
+        }
+        return "Mock AI Diet Plan: Based on your goals (" + goals + ") and allergies (" + allergies + "), eat more greens and lean proteins. (Set GEMMA_API_KEY to enable live Gemma AI)";
     }
     
     public String chat(String message) {
-        if ("mock-key".equals(apiKey)) {
-            return "Mock AI Chatbot: Hello! I'm your mock nutrition assistant. (Configure openai.api.key to get real responses)";
+        if (!"mock-key".equals(gemmaApiKey) && gemmaApiKey != null && !gemmaApiKey.isBlank()) {
+            try {
+                return callGemmaText("You are a helpful clinical nutrition assistant. User says: " + message);
+            } catch (Exception e) {
+                System.err.println("Gemma API call failed for chat: " + e.getMessage());
+            }
         }
-        return callOpenAi("You are a helpful nutrition assistant. User says: " + message);
+        if (!"mock-key".equals(apiKey)) {
+            return callOpenAi("You are a helpful nutrition assistant. User says: " + message);
+        }
+        return "Mock AI Chatbot: Hello! I'm your nutrition assistant. (Configure GEMMA_API_KEY in application.yml/.env for live Gemma response)";
     }
     
     public String analyzeFoodImage(String imageUrl) {
-        if ("mock-key".equals(apiKey)) {
-            return "Mock AI Image Analysis: The uploaded image looks like a healthy meal containing approximately 450 calories, high in protein.";
+        if (!"mock-key".equals(gemmaApiKey) && gemmaApiKey != null && !gemmaApiKey.isBlank()) {
+            try {
+                return callGemmaText("Analyze this food image URL and estimate calories: " + imageUrl);
+            } catch (Exception e) {
+                System.err.println("Gemma API call failed for image analysis: " + e.getMessage());
+            }
         }
-        return callOpenAi("Analyze this food image URL and estimate calories: " + imageUrl);
+        if (!"mock-key".equals(apiKey)) {
+            return callOpenAi("Analyze this food image URL and estimate calories: " + imageUrl);
+        }
+        return "Mock AI Image Analysis: The uploaded image looks like a healthy meal containing approximately 450 calories, high in protein.";
     }
 
     public FoodAnalysisResponseDto analyzeFood(FoodAnalysisRequestDto request, String userEmail) {
@@ -86,16 +112,117 @@ public class AiService {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        // Perform analysis (either via OpenAI or fallback engine)
+        // 1. Try Gemma Model for Vision & OCR Analysis
+        if (!"mock-key".equals(gemmaApiKey) && gemmaApiKey != null && !gemmaApiKey.isBlank()) {
+            try {
+                return callGemmaApiForOCR(request, userAllergiesList, userDietType);
+            } catch (Exception e) {
+                System.err.println("Gemma Model OCR/Vision call failed: " + e.getMessage() + ". Falling back to secondary engine.");
+                e.printStackTrace();
+            }
+        }
+
+        // 2. Try OpenAI as secondary engine
         if (!"mock-key".equals(apiKey) && apiKey != null && !apiKey.isBlank()) {
             try {
                 return callOpenAiForFoodAnalysis(request, userAllergiesList, userDietType);
             } catch (Exception e) {
-                System.err.println("OpenAI Vision/Structured call failed, using intelligent analyzer fallback: " + e.getMessage());
+                System.err.println("OpenAI Vision call failed: " + e.getMessage() + ". Falling back to local OCR analyzer.");
             }
         }
 
+        // 3. Robust local OCR & Rule-based fallback engine
         return performRuleBasedAnalysis(request, userAllergiesList, userDietType);
+    }
+
+    private FoodAnalysisResponseDto callGemmaApiForOCR(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType) throws Exception {
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/" + gemmaModel + ":generateContent?key=" + gemmaApiKey;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", gemmaApiKey);
+
+        String prompt = String.format("""
+            You are Gemma AI, an expert vision OCR and food analysis model. Analyze this food input (%s): %s.
+            User Profile Allergies: %s. User Diet Preference: %s.
+            Extract product details, ingredients, additives, nutrition macros/micros, and check against user allergies.
+            Return ONLY a valid JSON object matching this schema without any markdown formatting or extra commentary:
+            {
+              "productName": "string",
+              "category": "string",
+              "servingSize": "string",
+              "verdict": "SAFE" | "CAUTION" | "AVOID",
+              "verdictExplanation": "plain text explanation",
+              "ingredientsList": ["ingredient1", "ingredient2"],
+              "matchedAllergens": [{"allergen": "Peanuts", "severity": "HIGH", "reason": "why matched"}],
+              "additives": [{"name": "E211", "category": "Preservative", "riskLevel": "MODERATE", "description": "desc"}],
+              "dietSuitability": {"Vegan": true, "Keto": false, "Gluten-Free": true},
+              "nutrition": {"calories": 300, "proteinG": 10.0, "carbsG": 30.0, "fatG": 8.0, "fiberG": 4.0, "sugarG": 5.0, "sodiumMg": 200.0, "micronutrients": {"Iron": "2mg"}},
+              "betterAlternatives": [{"id": 1, "title": "Alt Title", "description": "desc", "calories": 250, "proteinG": 15.0, "carbsG": 20.0, "fatG": 5.0, "imageUrl": "url", "whyBetter": "why"}]
+            }
+            """, request.getInputType(), request.getImageUrl() != null ? request.getImageUrl() : request.getBarcode(), userAllergies, dietType);
+
+        List<Map<String, Object>> parts = new ArrayList<>();
+        parts.add(Map.of("text", prompt));
+
+        if (request.getImageUrl() != null && request.getImageUrl().startsWith("data:image")) {
+            String[] split = request.getImageUrl().split(",");
+            if (split.length == 2) {
+                String mimeType = split[0].split(";")[0].replace("data:", "");
+                String base64Data = split[1];
+                parts.add(Map.of("inlineData", Map.of("mimeType", mimeType, "data", base64Data)));
+            }
+        }
+
+        Map<String, Object> contentMap = Map.of("parts", parts);
+        Map<String, Object> body = Map.of("contents", List.of(contentMap));
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+        
+        List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.getBody().get("candidates");
+        if (candidates == null || candidates.isEmpty()) {
+            throw new RuntimeException("Empty response candidates from Gemma API");
+        }
+        Map<String, Object> candidate = candidates.get(0);
+        Map<String, Object> contentObj = (Map<String, Object>) candidate.get("content");
+        List<Map<String, Object>> resParts = (List<Map<String, Object>>) contentObj.get("parts");
+
+        StringBuilder fullText = new StringBuilder();
+        for (Map<String, Object> part : resParts) {
+            if (part.containsKey("text")) {
+                fullText.append(part.get("text")).append("\n");
+            }
+        }
+
+        String rawText = fullText.toString().replaceAll("```json", "").replaceAll("```", "").trim();
+        int firstBrace = rawText.indexOf("{");
+        int lastBrace = rawText.lastIndexOf("}");
+        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+            rawText = rawText.substring(firstBrace, lastBrace + 1);
+        }
+
+        return objectMapper.readValue(rawText, FoodAnalysisResponseDto.class);
+    }
+
+    private String callGemmaText(String prompt) {
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/" + gemmaModel + ":generateContent?key=" + gemmaApiKey;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", gemmaApiKey);
+
+        Map<String, Object> body = Map.of("contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.getBody().get("candidates");
+            Map<String, Object> contentObj = (Map<String, Object>) candidates.get(0).get("content");
+            List<Map<String, Object>> parts = (List<Map<String, Object>>) contentObj.get("parts");
+            return (String) parts.get(0).get("text");
+        } catch (Exception e) {
+            System.err.println("Error calling Gemma text API: " + e.getMessage());
+            return "Error calling Gemma AI service.";
+        }
     }
 
     private FoodAnalysisResponseDto performRuleBasedAnalysis(FoodAnalysisRequestDto request, List<String> userAllergies, String dietType) {

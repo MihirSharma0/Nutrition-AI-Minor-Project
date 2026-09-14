@@ -24,7 +24,7 @@ const UserDashboardLayout = () => {
         { name: "Reports", path: "/dashboard/user/reports", icon: "lab_profile" },
         { name: "AI Chat", path: "/dashboard/user/ai-chat", icon: "smart_toy" },
         { name: "AI Diet Gen", path: "/dashboard/user/ai-diet", icon: "magic_button" },
-        { name: "AI Food Scan", path: "/dashboard/user/ai-image", icon: "center_focus_strong" },
+        { name: "AI Food Analyzer", path: "/dashboard/user/ai-image", icon: "center_focus_strong" },
         { name: "Profile", path: "/dashboard/user/profile", icon: "person" }
     ];
 

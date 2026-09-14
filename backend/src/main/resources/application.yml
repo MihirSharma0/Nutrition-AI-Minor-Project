@@ -50,3 +50,9 @@ google:
     api-key: ${GOOGLE_SCRIPT_API_KEY}
   client:
     id: ${GOOGLE_CLIENT_ID}
+
+gemma:
+  api:
+    key: ${GEMMA_API_KEY:mock-key}
+    model: ${GEMMA_MODEL:gemini-1.5-flash}
+
